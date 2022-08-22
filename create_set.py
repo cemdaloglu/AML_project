@@ -1,14 +1,8 @@
-import os
 from osgeo import gdal
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from PIL import Image, ImageEnhance
-from rasterio.plot import show
-import rasterio
-import cv2
-from tifffile import imsave
 import torch
+import glob
 
 
 def tiff_2_smt(tif_location: str) -> [torch.Tensor, np.array]:
@@ -43,7 +37,7 @@ def tiff_2_smt(tif_location: str) -> [torch.Tensor, np.array]:
     return torch.Tensor(img), img2
 
 
-def cropped_set(image_data, height_division_count: int, width_division_count: int):
+def cropped_set(image_data, height_division_count: int, width_division_count: int, ignore: bool):
     w, h = np.shape(image_data)[0], np.shape(image_data)[1]
     h_d = height_division_count
     w_d = width_division_count
@@ -51,27 +45,43 @@ def cropped_set(image_data, height_division_count: int, width_division_count: in
     w_size = int(np.ceil(w / w_d))
     h_size = int(np.ceil(h / h_d))
 
-    for i in range(h_d):
-        for j in range(w_d):
+    for i in range(h_d-1):
+        for j in range(w_d-1):
             if np.ndim(image_data) == 3:
                 try:
                     cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
                 except:
-                    try:
-                        cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:, :]
-                    except:
-                        cropped_img = image_data[w_size * j:, h_size * i:h_size * (i + 1):, :]
-                plt.imsave(f"train_set/image_{i}_{j}.png", cropped_img)
+                    if not ignore:
+                        try:
+                            cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:, :]
+                        except:
+                            cropped_img = image_data[w_size * j:, h_size * i:h_size * (i + 1):, :]
+                plt.imsave(f"test_set/image_{i}_{j}.png", cropped_img)
             else:
                 try:
                     cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
                 except:
-                    try:
-                        cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:]
-                    except:
-                        cropped_img = image_data[w_size * j:, h_size * i:h_size * (i + 1):]
-                plt.imsave(f"label_set/image_{i}_{j}_label.png", cropped_img)
+                    if not ignore:
+                        try:
+                            cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:]
+                        except:
+                            cropped_img = image_data[w_size * j:, h_size * i:h_size * (i + 1):]
+                plt.imsave(f"test_label_set/image_{i}_{j}_label.png", cropped_img)
             # imsave(f"train_set/image_{i}_{j}.tif", cropped_img)
+
+
+def cropped_label_set(image_data, height_division_count: int, width_division_count: int):
+    w, h = np.shape(image_data)[0], np.shape(image_data)[1]
+    h_d = height_division_count
+    w_d = width_division_count
+
+    w_size = int(np.ceil(w / w_d))
+    h_size = int(np.ceil(h / h_d))
+
+    for i in range(h_d-1):
+        for j in range(w_d-1):
+            cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
+            np.save(f"test_npy_label/image_{i}_{j}_label", cropped_img/4)
 
 
 def tiff_2_label(tif_location: str) -> torch.Tensor:
@@ -80,21 +90,13 @@ def tiff_2_label(tif_location: str) -> torch.Tensor:
     return band1.ReadAsArray(0, 0)
 
 
-# img, img2 = tiff_2_smt('images\Munich_s2.tif')
-img2 = tiff_2_label('annotations\munich_anno.tif')
-cropped_set(img2, 4, 4)
+"""img, img2 = tiff_2_smt('images\Munich_s2.tif')
+img_test = tiff_2_label('annotations\munich_anno.tif')
+cropped_set(img_test, 44, 95, True)
+cropped_set(img2, 44, 95, True)"""
 
-
-# Read in patches and recreate original image of it
-"""
-merged_img_h = []
-for i in range(h_d):
-    merged_img_w = []
-    for j in range(w_d):
-        img_w = plt.imread(f"Image_{i}_{j}.png")
-        merged_img_w.append(img_w)
-    merge_h = np.concatenate(merged_img_w, axis=1)
-    merged_img_h.append(merge_h)
-merged = np.concatenate(merged_img_h)
-
-plt.imshow(merged)"""
+#img, img2 = tiff_2_smt('images\Berlin_s2.tif')
+img_test = tiff_2_label('annotations/berlin_anno.tif')
+# cropped_set(img_test, 64, 94, True)
+#cropped_set(img2, 64, 94, True)
+cropped_label_set(img_test, 64, 94)

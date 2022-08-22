@@ -1,85 +1,69 @@
-import os
-from osgeo import gdal
-import matplotlib.pyplot as plt
+import keras
+from tensorflow import keras
+from tensorflow.keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation, Flatten, BatchNormalization
+from keras.layers import Conv2D, MaxPooling2D, InputLayer, UpSampling2D, Conv2DTranspose, LeakyReLU, AveragePooling2D, \
+    GlobalAveragePooling2D, GlobalMaxPooling2D, Input, RepeatVector, Reshape, concatenate
+from keras.models import Model
+import imageio
+import glob
 import numpy as np
-import pandas as pd
-from PIL import Image, ImageEnhance
-from rasterio.plot import show
-import rasterio
-import cv2
-from itertools import product
-import create_set
 
-# since there are 3 bands
-# we store in 3 different variables
-"""dataset3 = gdal.Open(r'images\Munich_s2.tif')
-#dataset3 = gdal.Open(r'train_set\image_0_0.tif')
 
-dataset2 = gdal.Open(r'annotations\munich_anno.tif')
+train_set = []
+skipped_loc = []
+for image_path in glob.glob("train_set/*.png"):
+    try:
+        train_set.append(imageio.imread(image_path))
+    except:
+        skipped_loc.append(image_path)
 
-band1 = dataset3.GetRasterBand(1)  # Red channel
-band2 = dataset3.GetRasterBand(2)  # Green channel
-band3 = dataset3.GetRasterBand(3)  # Blue channel
-band4 = dataset3.GetRasterBand(4)  # channel
+label_set = []
+skipped_loc_label = []
+for image_path in glob.glob("train_npy_label/*.npy"):
+    if not skipped_loc:
+        label_set.append(np.load(image_path))
+    else:
+        if skipped_loc[0][15:-4] != image_path[15:-10]:
+            label_set.append(np.load(image_path))
+        else:
+            skipped_loc_label.append(image_path)
 
-b1 = band1.ReadAsArray(0, 0)
-b2 = band2.ReadAsArray(0, 0)
-b3 = band3.ReadAsArray(0, 0)
-b4 = band4.ReadAsArray(0, 0)
+test_set = []
+skipped_loc_test = []
+for image_path in glob.glob("test_set/*.png"):
+    try:
+        test_set.append(imageio.imread(image_path))
+    except:
+        skipped_loc_test.append(image_path)
 
-img_tmp = np.dstack((b1, b2, b3))
-indices = img_tmp > 1000/28000
-img_tmp[indices] = 1000/28000"""
+test_label_set = []
+for image_path in glob.glob("test_npy_label/*.npy"):
+    test_label_set.append(np.load(image_path))
 
-img, img2 = create_set.tiff_2_array('images\Munich_s2.tif')
-plt.imshow(img2)
-# plt.imshow(img.T)
-"""w, h = np.shape(img)[0], np.shape(img)[1]
-h_d = 4
-w_d = 4
 
-w_size = int(np.ceil(w / w_d))
-h_size = int(np.ceil(h / h_d))
+train_set = np.reshape(train_set, (-1, 64, 128, 4))
+label_set = np.reshape(label_set, (-1, 64, 128, 1))
+test_set = np.reshape(test_set, (-1, 64, 128, 4))
+test_label_set = np.reshape(test_label_set, (-1, 64, 128, 1))
 
-w_extra = int(w - w_size * (w_d - 1))
-h_extra = int(h - h_size * (h_d - 1))
 
-#fig, axs = plt.subplots(w_d, h_d)
+model = Sequential()
+inputs = Input((64, 128, 4))
+conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(inputs)
+conv1 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv1)
+pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(pool1)
+conv2 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv2)
+up3 = concatenate([Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(conv2), conv1], axis=3)
+conv3 = Conv2D(32, (3, 3), activation='relu', padding='same')(up3)
+conv3 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv3)
+conv4 = Conv2D(1, (3, 3), activation='relu', padding='same')(conv3)
 
-for i in range(h_d):
-    for j in range(w_d):
-        try:
-            cropped_img = img[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
-        except:
-            try:
-                cropped_img = img[w_size * j:w_size * (j + 1), h_size * i:, :]
-            except:
-                cropped_img = img[w_size * j:, h_size * i:h_size * (i + 1):, :]
-        #axs[j, i].imshow(cropped_img)
-        plt.imsave(f"train_set/image_{i}_{j}.tiff", cropped_img)"""
+model = Model(inputs=[inputs], outputs=[conv4])
+model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+model.summary()
 
-"""for i in range(h_d):
-    for j in range(w_d):
-        try:
-            cropped_img = img[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
-        except:
-            try:
-                cropped_img = img[w_size * j:w_size * (j + 1), h_size * i:]
-            except:
-                cropped_img = img[w_size * j:, h_size * i:h_size * (i + 1):]
-        axs[j, i].imshow(cropped_img)
-        plt.imsave(f"Image_{i}_{j}.png", cropped_img)"""
 
-# Read in patches and recreate original image of it
-"""
-merged_img_h = []
-for i in range(h_d):
-    merged_img_w = []
-    for j in range(w_d):
-        img_w = plt.imread(f"Image_{i}_{j}.png")
-        merged_img_w.append(img_w)
-    merge_h = np.concatenate(merged_img_w, axis=1)
-    merged_img_h.append(merge_h)
-merged = np.concatenate(merged_img_h)
-
-plt.imshow(merged)"""
+history = model.fit(x=train_set, y=label_set, validation_split=0.2, epochs=20, batch_size=16)
+xx = model.predict(test_set)
