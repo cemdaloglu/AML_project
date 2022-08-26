@@ -1,8 +1,6 @@
 from osgeo import gdal
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import glob
 
 
 def tiff_2_smt(tif_location: str) -> [torch.Tensor, np.array]:
@@ -20,6 +18,8 @@ def tiff_2_smt(tif_location: str) -> [torch.Tensor, np.array]:
 
     img_tmp = np.dstack((b3, b2, b1, b4))
     img = np.zeros_like(img_tmp, dtype=float)
+    indices = img_tmp > 3558
+    img_tmp[indices] = 3558
 
     img_tmp_2 = np.dstack((b3, b2, b1))
     indices = img_tmp_2 > 2000
@@ -37,66 +37,93 @@ def tiff_2_smt(tif_location: str) -> [torch.Tensor, np.array]:
     return torch.Tensor(img), img2
 
 
-def cropped_set(image_data, height_division_count: int, width_division_count: int, ignore: bool):
+def cropped_set(image_data, height_division_count: int, width_division_count: int, img_path: str, padding: bool):
     w, h = np.shape(image_data)[0], np.shape(image_data)[1]
-    h_d = height_division_count
-    w_d = width_division_count
+    h_d = int(np.ceil(h / height_division_count))
+    w_d = int(np.ceil(w / width_division_count))
 
-    w_size = int(np.ceil(w / w_d))
-    h_size = int(np.ceil(h / h_d))
+    w_size = width_division_count
+    h_size = height_division_count
 
-    for i in range(h_d-1):
-        for j in range(w_d-1):
-            if np.ndim(image_data) == 3:
-                try:
-                    cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
-                except:
-                    if not ignore:
-                        try:
-                            cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:, :]
-                        except:
-                            cropped_img = image_data[w_size * j:, h_size * i:h_size * (i + 1):, :]
-                plt.imsave(f"test_set/image_{i}_{j}.png", cropped_img)
-            else:
-                try:
-                    cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
-                except:
-                    if not ignore:
-                        try:
-                            cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:]
-                        except:
-                            cropped_img = image_data[w_size * j:, h_size * i:h_size * (i + 1):]
-                plt.imsave(f"test_label_set/image_{i}_{j}_label.png", cropped_img)
-            # imsave(f"train_set/image_{i}_{j}.tif", cropped_img)
+    if padding:
+        rows_missing = w_size - w % w_size
+        cols_missing = h_size - h % h_size
+        padded_img = np.pad(image_data, ((0, rows_missing), (0, cols_missing), (0, 0)), 'constant')
+
+        for i in range(h_d):
+            for j in range(w_d):
+                cropped_img = padded_img[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
+                np.save(f"{img_path}/image_{i}_{j}", cropped_img)
+    else:
+        for i in range(h_d-1):
+            for j in range(w_d-1):
+                cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
+                np.save(f"{img_path}/image_{i}_{j}", cropped_img)
 
 
-def cropped_label_set(image_data, height_division_count: int, width_division_count: int):
+def cropped_label_set(image_data, height_division_count: int, width_division_count: int, dir_path: str, padding: bool):
     w, h = np.shape(image_data)[0], np.shape(image_data)[1]
-    h_d = height_division_count
-    w_d = width_division_count
+    h_d = int(np.ceil(h / height_division_count))
+    w_d = int(np.ceil(w / width_division_count))
 
-    w_size = int(np.ceil(w / w_d))
-    h_size = int(np.ceil(h / h_d))
+    w_size = width_division_count
+    h_size = height_division_count
 
-    for i in range(h_d-1):
-        for j in range(w_d-1):
-            cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
-            np.save(f"test_npy_label/image_{i}_{j}_label", cropped_img/4)
+    if padding:
+        rows_missing = w_size - w % w_size
+        cols_missing = h_size - h % h_size
+        padded_img = np.pad(image_data, ((0, rows_missing), (0, cols_missing)), 'constant')
+
+        for i in range(h_d):
+            for j in range(w_d):
+                cropped_img = padded_img[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
+                label_set = np.zeros((np.shape(cropped_img)[0], np.shape(cropped_img)[1], 5))
+                for idx in range(np.shape(cropped_img)[0]):
+                    for jdx in range(np.shape(cropped_img)[1]):
+                        if cropped_img[idx, jdx] == 0:
+                            label_set[idx, jdx, 0] = 1
+                        elif cropped_img[idx, jdx] == 1:
+                            label_set[idx, jdx, 1] = 1
+                        elif cropped_img[idx, jdx] == 2:
+                            label_set[idx, jdx, 2] = 1
+                        elif cropped_img[idx, jdx] == 3:
+                            label_set[idx, jdx, 3] = 1
+                        elif cropped_img[idx, jdx] == 4:
+                            label_set[idx, jdx, 4] = 1
+                np.save(f"{dir_path}/image_{i}_{j}_label", label_set)
+    else:
+        for i in range(h_d-1):
+            for j in range(w_d-1):
+                cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
+                label_set = np.zeros((np.shape(cropped_img)[0], np.shape(cropped_img)[1], 5))
+                for idx in range(np.shape(cropped_img)[0]):
+                    for jdx in range(np.shape(cropped_img)[1]):
+                        if cropped_img[idx, jdx] == 0:
+                            label_set[idx, jdx, 0] = 1
+                        elif cropped_img[idx, jdx] == 1:
+                            label_set[idx, jdx, 1] = 1
+                        elif cropped_img[idx, jdx] == 2:
+                            label_set[idx, jdx, 2] = 1
+                        elif cropped_img[idx, jdx] == 3:
+                            label_set[idx, jdx, 3] = 1
+                        elif cropped_img[idx, jdx] == 4:
+                            label_set[idx, jdx, 4] = 1
+                np.save(f"{dir_path}/image_{i}_{j}_label", label_set)
 
 
 def tiff_2_label(tif_location: str) -> torch.Tensor:
     dataset3 = gdal.Open(tif_location)
     band1 = dataset3.GetRasterBand(1)
-    return band1.ReadAsArray(0, 0)
+    return band1.ReadAsArray()
 
 
-"""img, img2 = tiff_2_smt('images\Munich_s2.tif')
-img_test = tiff_2_label('annotations\munich_anno.tif')
-cropped_set(img_test, 44, 95, True)
-cropped_set(img2, 44, 95, True)"""
+img1, _ = tiff_2_smt('images\Munich_s2.tif')
+img2, _ = tiff_2_smt('images\Berlin_s2.tif')
+cropped_set(img1, 64, 64, "test_set_new_thresh", True)
+cropped_set(img2, 64, 64, "train_set_new_thresh")
 
-#img, img2 = tiff_2_smt('images\Berlin_s2.tif')
-img_test = tiff_2_label('annotations/berlin_anno.tif')
-# cropped_set(img_test, 64, 94, True)
-#cropped_set(img2, 64, 94, True)
-cropped_label_set(img_test, 64, 94)
+
+"""img_test1 = tiff_2_label('annotations/berlin_anno.tif')
+img_test2 = tiff_2_label('annotations\munich_anno.tif')
+cropped_label_set(img_test1, 64, 64, "train_label_new", True)
+cropped_label_set(img_test2, 64, 64, "test_label_new", True)"""
