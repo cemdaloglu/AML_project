@@ -115,7 +115,7 @@ def unet_trial(input_size=(64, 128, 4), weight_file=None, kr=l1_l2(l1=0.1, l2=0.
 
 
 def unet_batchnorm(nclass=5, input_size=(64, 64, 4), weight_file=None,
-                   kr=l1_l2(l1=0.01, l2=0.001), maps=[64, 128, 256, 512, 1024]):
+                   kr=l1_l2(l1=0.1, l2=0.01), maps=[64, 128, 256, 512, 1024]):
     """
     UNet network using batch normalization features.
     """
@@ -144,7 +144,7 @@ def unet_batchnorm(nclass=5, input_size=(64, 64, 4), weight_file=None,
 
     # Squeeze
     c5 = Conv2D(maps[4], (3, 3), activation='relu', padding='same')(p4)
-    d5 = Dropout(0.15)(c5)
+    d5 = Dropout(0.30)(c5)
     c5 = Conv2D(maps[4], (3, 3), activation='relu', padding='same')(d5)
 
     # Decoder
@@ -206,8 +206,8 @@ for i in range(np.shape(y_pred_prob)[0]):
 
 cm = confusion_matrix(np.ravel(y_true), np.ravel(y_pred), labels=[0, 1, 2, 3, 4])
 print(cm)
-df_cm = pd.DataFrame(cm, index=["unknown", "water", "city", "forest", "agriculture"],
-                     columns=["unknown", "water", "city", "forest", "agriculture"])
+df_cm = pd.DataFrame(cm, index=["unknown",  "agriculture", "forest", "city", "water"],
+                     columns=["unknown",  "agriculture", "forest", "city", "water"])
 plt.figure(figsize=(10, 7))
 sn.heatmap(df_cm, annot=True)
 fig = plt.figure()
@@ -222,7 +222,7 @@ plt.axis([0, 10, 0, 5])
 fig = plt.figure()
 plt.show()
 plt.plot(h.history['acc'])
-plt.plot(h.history['val_accuracy'])
+plt.plot(h.history['val_acc'])
 plt.legend(['accuracy', 'val_acc'])
 plt.xlabel('epoch')
 plt.ylabel('accuracy')
