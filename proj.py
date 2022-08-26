@@ -189,7 +189,7 @@ opt = keras.optimizers.Adam(learning_rate=0.01)
 model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['acc', f1_m, precision_m, recall_m])
 model.summary()
 
-history = model.fit(x=train_set, y=label_set, validation_split=0.2, epochs=1, batch_size=16, verbose=0)
+history = model.fit(x=train_set, y=label_set, validation_split=0.2, epochs=100, batch_size=16, verbose=0)
 loss, accuracy, f1_score, precision, recall = model.evaluate(test_set, test_label_set, verbose=0)
 model.save_weights("my_model_1.h5")
 
@@ -208,10 +208,9 @@ cm = confusion_matrix(np.ravel(y_true), np.ravel(y_pred), labels=[0, 1, 2, 3, 4]
 print(cm)
 df_cm = pd.DataFrame(cm, index=["unknown", "water", "city", "forest", "agriculture"],
                      columns=["unknown", "water", "city", "forest", "agriculture"])
-fig = plt.figure()
 plt.figure(figsize=(10, 7))
 sn.heatmap(df_cm, annot=True)
-
+fig = plt.figure()
 h = history
 plt.plot(h.history['loss'])
 plt.plot(h.history['val_loss'])
@@ -224,7 +223,7 @@ fig = plt.figure()
 plt.show()
 plt.plot(h.history['acc'])
 plt.plot(h.history['val_accuracy'])
-plt.legend(['accuracy', 'val_accuracy'])
+plt.legend(['accuracy', 'val_acc'])
 plt.xlabel('epoch')
 plt.ylabel('accuracy')
 plt.title('Model Accuracy')
