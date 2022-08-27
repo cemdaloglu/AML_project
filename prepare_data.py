@@ -68,7 +68,7 @@ def read_and_return_image_and_mask_gdal(path, thresh = 2000):
     return images_with_masks
 
 
-def create_and_save_patches_from_numpy_img(img = None, mask = None, patch_size = 256, step = None, save_patches = True, show_plt = True):
+def create_and_save_patches_from_numpy_individual(img = None, mask = None, patch_size = 256, step = None, save_patches = True, show_plt = True):
     """
     Creates patches of the input image and/ or mask and saves and shows plot if wanted.
 
@@ -151,7 +151,9 @@ def create_and_save_patches_from_numpy_img(img = None, mask = None, patch_size =
 
 
 
-def create_and_save_patches_from_numpy_imgs(img_mask_list= None, patch_size = 256, save_patches = True, show_plt = True):
+
+
+def create_and_save_patches_from_numpy_imgs(img_mask_list= None, patch_size = 256, step = None, save_patches = True, show_plt = True):
     """
     path = '/AML/multi_sensor_landcover_classification/' # EDIT PATH
     create_and_save_patches_from_numpy_imgs(read_and_return_image_and_mask_gdal(path), show_plt=False)
@@ -175,11 +177,12 @@ def create_and_save_patches_from_numpy_imgs(img_mask_list= None, patch_size = 25
     
     """
 
+    if step is None: 
+        step = patch_size
+
     for ind, img_mask in zip(enumerate(img_mask_list), img_mask_list):
         img = img_mask[0]
         mask = img_mask[1]
-
-        print(ind[0])
 
         if img is not None: 
             input_shape = img.shape
@@ -194,7 +197,7 @@ def create_and_save_patches_from_numpy_imgs(img_mask_list= None, patch_size = 25
         
 
         if img is not None:
-            patches = np.squeeze(patchify(img[:ind0,:ind1,:], (patch_size,patch_size,3), step=patch_size))
+            patches = np.squeeze(patchify(img[:ind0,:ind1,:], (patch_size,patch_size,3), step=step))
             if show_plt: 
                 plt.figure(figsize=(20,20))
                 ix = 1
@@ -213,7 +216,13 @@ def create_and_save_patches_from_numpy_imgs(img_mask_list= None, patch_size = 25
                 for i in range(patches.shape[0]):
                     for j in range(patches.shape[1]):
                         single_patch = patches[i,j,:,:,:]
-                        cv2.imwrite('patches/images/' + 'image_' + str(ind[0]) + '_' + str(i)+'_'+str(j)+ ".png", single_patch)
+
+                        # Prepare for saving
+                        sg_ptch = single_patch
+                        min_val,max_val=np.min(sg_ptch),np.max(sg_ptch)
+                        sg_ptch = 255.0*(sg_ptch - min_val)/(max_val - min_val)
+                        sg_ptch = sg_ptch.astype(np.uint8)
+                        cv2.imwrite('patches/images/' + 'image_' + str(ind[0]) + '_' + str(i)+'_'+str(j)+ ".png", sg_ptch)
             
         
         if mask is not None:
@@ -237,8 +246,13 @@ def create_and_save_patches_from_numpy_imgs(img_mask_list= None, patch_size = 25
                 for i in range(mask_patches.shape[0]):
                     for j in range(mask_patches.shape[1]):
                         single_patch_mask = mask_patches[i,j,:,:]
-                        #single_patch_mask.PIL.save('patches/masks/' + 'mask_' + str(i)+'_'+str(j)+ ".png")
-                        cv2.imwrite('patches/masks/' + 'mask_' + str(ind[0]) + '_' + str(i)+'_'+str(j)+ ".png", single_patch_mask)
+                        
+                        # Prepare for saving
+                        sg_ptch_msk = single_patch_mask
+                        min_val,max_val=np.min(sg_ptch_msk),np.max(sg_ptch_msk)
+                        sg_ptch_msk = 255.0*(sg_ptch_msk - min_val)/(max_val - min_val)
+                        #sg_ptch_msk = sg_ptch_msk.astype(np.uint8)
+                        cv2.imwrite('patches/masks/' + 'mask_' + str(ind[0]) + '_' + str(i)+'_'+str(j)+ ".png", sg_ptch_msk)
                         
             
         
