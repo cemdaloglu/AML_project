@@ -1,5 +1,5 @@
-from training.train_model import train_model
-from models.unet import UNet
+from .src.training.train_model import train_model
+from .models.unet import UNet
 import torch
 from torchsummary import summary
 
