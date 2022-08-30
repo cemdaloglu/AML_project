@@ -16,20 +16,15 @@ def get_project_root() -> Path:
 
 
 
-def validate(model, use_cuda, loss, test_loader, n_classes,
-            loss_criterion = None, 
-             metrics_path=MODEL_TEST_PARAMETERS["FINAL_METRICS_PATH"], 
-             evaluation_images_path=str(get_project_root()) + f"{MODEL_TEST_PARAMETERS['EVALUATION_IMAGES_PATH']}"):
+def validate(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion = None):
     """
     Compute test metrics on test data set 
 
-    @param: model -- the neural network
-    @param: use_cuda -- true if GPU should be used
-    @param: loss -- the used loss function from calc_loss
-    @param: test_loader -- test data dataloader
-    @param: test_batch_size -- used batch size
-    @param: max_plots -- number of plots to show
-    @param: task -- character: which of the segmentation tasks should be done: "VoronoiOutline" / "ColorVoronoi"/ "CREMI"
+    @param model: -- the neural network
+    @param: use_cuda: -- true if GPU should be used
+    @param: loss_fun: -- the used loss function from calc_loss
+    @param: test_loader: -- test data dataloader
+    @param: test_batch_size: -- used batch size
     """
     model.eval()
     labels = np.arange(n_classes)
@@ -58,7 +53,7 @@ def validate(model, use_cuda, loss, test_loader, n_classes,
             prediction = model(images) # torch.Size([batch_size, n_classes, h, w])
             
             # compute and save loss
-            test_loss = loss(prediction, labels.long(), loss_criterion = loss_criterion)
+            test_loss = loss_fun(prediction, labels.long(), loss_criterion = loss_criterion)
             losses.extend(test_loss.cpu().numpy().reshape(-1))
 
             # take argmax to get class 

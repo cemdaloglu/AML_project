@@ -4,6 +4,8 @@ import time
 import torch
 from tqdm import tqdm
 
+from src.metric.loss import calc_loss
+
 
 def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_path_model, trained_epochs=0):
 
@@ -39,13 +41,11 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                 # forward pass: compute prediction and the loss btw prediction and true label
                 # track history only in train
                 with torch.set_grad_enabled(phase == 'train'):  
-                    outputs = model(inputs) # torch.Size([batch size, 2, 128, 128])
-                    print("type outputs = ", type(outputs))
+                    outputs = model(inputs) 
                     
                     # output is probability [batch size, n_classes, H, W], target is class [batch size, H, W]
                     # TODO: decide on loss!! (dummy function here)
                     loss = calc_loss(outputs, labels.long())
-
 
                     # backward + optimize only if in training phase (no need for torch.no_grad in this training pass)
                     if phase == 'train':
