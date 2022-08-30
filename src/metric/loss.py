@@ -1,11 +1,19 @@
 import numpy as np
 import torch.nn as nn
 
-def calc_loss(target, pred, metrics):
-    loss = nn.CrossEntropyLoss()
+def calc_loss(target, pred, criterion, metrics):
+    '''
+    TODO: THINK ABOUT NICE LOSS AND ALSO WEIGHTS
+    '''
+    if criterion == "CEL":
+        loss = nn.CrossEntropyLoss()
+    elif criterion == "wCEL":
+        loss = nn.CrossEntropyLoss() # TODO
+    else:
+        loss = nn.CrossEntropyLoss()
 
     loss = loss(target, pred)
-    metrics['loss'] += loss.data.cpu().numpy() * target.size(0)
+    metrics['loss'] += loss.data.cpu().numpy() * target.size(0) # TODO probably add f1 stuff
 
     return loss
 
