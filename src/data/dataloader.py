@@ -2,7 +2,7 @@ import torch
 
 from torch.utils.data import random_split
 
-def get_dataloaders(dataset, train_val_frac, dataloader_workers=3, batch_size=8):
+def get_dataloaders(dataset, train_val_frac, dataloader_workers: int = 3, batch_size: int = 8):
     """
     Get Dataloaders for the given dataset.
     
