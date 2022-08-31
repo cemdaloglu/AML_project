@@ -72,6 +72,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# npy
+*.npy
 
 # JPEG
 *.jpg
