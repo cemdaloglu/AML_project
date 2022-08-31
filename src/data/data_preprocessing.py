@@ -71,7 +71,8 @@ def read_and_return_image_and_mask_gdal(path: str, thresh: int = 3558, use_infra
 
 
 def cropped_set_interseks_img_mask(images_with_masks: list, h_size: int, w_size: int, 
-                          padding: bool, interseks_hor: int, interseks_ver: int):
+                          padding: bool, interseks_hor: int, interseks_ver: int, 
+                          path_output:str):
     """
     Reads in images and corresponding masks from path. rgb image is extracted and normalizes
     
@@ -89,17 +90,28 @@ def cropped_set_interseks_img_mask(images_with_masks: list, h_size: int, w_size:
         how many pixels should intersect in horizontal direction
     interseks_ver: 
         how many pixels should intersect in vertical direction
+    path_output: 
+        Where to store the patches output data
 
     Returns
     -------
      
-        Patched images saved in folder
+        Patched images saved in folder /patches with in the same parent path as original data
     """
-    if not os.path.exists('patches/images/'):
-        os.makedirs('patches/images/')
-    if not os.path.exists('patches/masks/'):
-        os.makedirs('patches/masks/')
+    if path_output is not None:
+        parent = path_output
+    else: 
+        parent = os.getcwd()
+    
+    # Create folders
+    images_path = os.path.join(parent,'patches/images/')
+    masks_path = os.path.join(parent,'patches/images/')
+    if not os.path.exists(images_path):
+        os.makedirs(images_path)
+    if not os.path.exists(masks_path):
+        os.makedirs(masks_path)
 
+    # Loop over all cities
     for (image_data, mask_data), ind in zip(images_with_masks, range(len(images_with_masks))):
 
         w, h = np.shape(image_data)[0], np.shape(image_data)[1]
@@ -133,8 +145,8 @@ def cropped_set_interseks_img_mask(images_with_masks: list, h_size: int, w_size:
                                     (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
                         cropped_msk = padded_msk[w_size * j:w_size * (j + 1),
                                     (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
-                    np.save(f"patches/images/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
-                    np.save(f"patches/masks/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
+                    np.save(images_path+"/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
+                    np.save(masks_path+"/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
         # no padding
         else:
             for i in range(h_div - 1):
@@ -157,8 +169,8 @@ def cropped_set_interseks_img_mask(images_with_masks: list, h_size: int, w_size:
                                     (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
                         cropped_msk = image_data[w_size * j:w_size * (j + 1),
                                     (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
-                    np.save("patches/images/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
-                    np.save("patches/masks/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
+                    np.save(images_path+"/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
+                    np.save(masks_path+"/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
 
 path = '/Users/liaschmid/Documents/Uni Heidelberg/3. Semester/AML/AML_project/'
 cropped_set_interseks_img_mask(read_and_return_image_and_mask_gdal(path), 64, 64, True, 16, 16)
