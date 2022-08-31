@@ -6,16 +6,17 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, accuracy_score
-
-
-# helper function to get the root path 
+from ..metric.loss import calc_loss
+# helper function to get the root path
 from pathlib import Path
+
+
 def get_project_root() -> Path:
     """ return path to the project root"""
     return Path(__file__).parent
 
 
-def test(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion = None):
+def test(model, use_cuda: bool, test_loader, n_classes, loss_criterion=None):
     """
     Compute test metrics on test data set 
 
@@ -27,7 +28,7 @@ def test(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion 
     """
     model.eval()
     labels = np.arange(n_classes)
-    conf_matrix = np.zeros((n_classes,n_classes))
+    conf_matrix = np.zeros((n_classes, n_classes))
 
     # initialize all variables 
     num_correct = 0
@@ -36,7 +37,7 @@ def test(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion 
     all_labels = []
     all_predictions = []
     test_losses = []
-    
+
     with torch.no_grad():
         acc = 0
         pre = 0
@@ -44,7 +45,7 @@ def test(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion 
         f1 = 0
         for batch_index, dic in tqdm(enumerate(test_loader), total=len(test_loader)):
             images, labels = dic['image'], dic['mask']
-            
+
             all_images.extend(images.cpu())
             all_labels.extend(labels.cpu())
 
@@ -53,21 +54,21 @@ def test(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion 
                 labels = labels.to('cuda', dtype=torch.float)
 
             # run network
-            prediction = model(images) # torch.Size([batch_size, n_classes, h, w])
-            
+            prediction = model(images)  # torch.Size([batch_size, n_classes, h, w])
+
             # compute and save loss
-            test_loss = loss_fun(prediction, labels.long(), loss_criterion = loss_criterion)
+            test_loss = calc_loss(prediction, labels.long(), criterion=loss_criterion)
             test_losses.extend(test_loss.cpu().numpy().reshape(-1))
 
             # take argmax to get class 
-            final_prediction = torch.argmax(prediction.softmax(dim=1),dim=1) # torch.Size([batch_size, h, w])
+            final_prediction = torch.argmax(prediction.softmax(dim=1), dim=1)  # torch.Size([batch_size, h, w])
 
-            for j in range(len(labels)): 
+            for j in range(len(labels)):
                 true_label = labels[j].cpu().detach().numpy().flatten()
                 pred_label = final_prediction[j].cpu().detach().numpy().flatten()
-                conf_matrix += confusion_matrix(true_label, pred_label, labels=labels) # TODO: maybe use to compute IoU (Intersection over Union)
-            
-    
+                conf_matrix += confusion_matrix(true_label, pred_label,
+                                                labels=labels)  # TODO: maybe use to compute IoU (Intersection over Union)
+
             all_predictions.extend(final_prediction.cpu())
 
             # Compute number of correct predictions 
@@ -83,11 +84,12 @@ def test(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion 
             #   calculate F1 score
             f1 += f1_score(true_label, pred_label, average='macro') / len(test_loader)
     print('Loss of best validation batch:', np.min(test_losses))
-    
+
     losses_per_instance = pd.DataFrame(data={'loss': test_losses})
-    
+
     # print metrics
-    print("Mean Loss:", np.mean(test_losses), "\nMean Acc:", acc, "\nMean Macro Precision:", pre, "\nMean Macro Recall:", recall,
+    print("Mean Loss:", np.mean(test_losses), "\nMean Acc:", acc, "\nMean Macro Precision:", pre,
+          "\nMean Macro Recall:", recall,
           "\nMean Macro F1 Score:", f1)
 
     # plot confusion matrix
@@ -98,12 +100,10 @@ def test(model, use_cuda:bool, loss_fun, test_loader, n_classes, loss_criterion 
     ax.set_yticks(np.arange(n_classes))
 
     fig.tight_layout()
-    plt.show()    
+    plt.show()
 
     test_accuracy = (num_correct / num_pixels * 100).cpu().numpy()
     print(f"Got {num_correct}/{num_pixels} with acc {test_accuracy}")
-
-
 
 
 def test_model(test_loader, criterion):
@@ -164,7 +164,3 @@ def test_model(test_loader, criterion):
 
     fig.tight_layout()
     plt.show()
-
-    
-
-

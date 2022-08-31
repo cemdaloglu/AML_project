@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 
-def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_path_model, loss_criterion:str, trained_epochs:int=0):
+def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_path_model, loss_criterion: str,
+                trained_epochs: int = 0):
     best_loss = 1e10
     total_acc = {key: [] for key in ['train', 'val']}
     total_loss = {key: [] for key in ['train', 'val']}
-
 
     # iterate over all epochs
     for epoch in range(trained_epochs, num_epochs):
@@ -65,7 +65,6 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                 epoch_loss += loss / len(dataloaders[phase])
             total_acc[phase].append(epoch_accuracy)
             total_loss[phase].append(epoch_loss)
-            
 
             epoch_loss = loss / epoch_samples
             print("epoch_loss = ", epoch_loss)

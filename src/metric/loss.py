@@ -1,6 +1,7 @@
 import numpy as np
 import torch.nn as nn
 
+
 def calc_loss(target, pred, criterion, metrics):
     '''
     TODO: THINK ABOUT NICE LOSS AND ALSO WEIGHTS
