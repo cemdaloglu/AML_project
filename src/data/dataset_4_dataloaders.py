@@ -25,4 +25,4 @@ def dataset_prepare(train_set_path: str, test_set_path: str, train_label_path: s
     test_set = np.reshape(test_set, (-1, 4, patch_size[0], patch_size[1]))
     test_label_set = np.reshape(test_label_set, (-1, patch_size[0], patch_size[1]))
 
-    return train_set, label_set, test_set, test_label_set
+    return list(zip(train_set, label_set)), list(zip(test_set, test_label_set))
