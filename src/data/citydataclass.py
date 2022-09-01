@@ -11,7 +11,7 @@ class CityData(Dataset):
 
     def __init__(self, train_test_path, transforms = None):
         """
-        train_test_path -- path to either "training" or "testing" containing subfolders 'patches/images' and 'patches/masks' where the patched data lies
+        train_test_path -- path to either "train", "val", or "test" containing subfolders 'images' and 'masks' where the patched data lies, e.g. ../patches/train
         transform -- transform (from torchvision.transforms) to be applied to the data
 
         Usage: citydata = CityData(train_test_path)
@@ -21,8 +21,8 @@ class CityData(Dataset):
         self.labels = []
 
         # Define Dataset 
-        self.patch_imgs_path = sorted(glob.glob(train_test_path + 'patches/images/*'))
-        self.patch_masks_path = sorted(glob.glob(train_test_path + 'patches/masks/*'))
+        self.patch_imgs_path = sorted(glob.glob(train_test_path + 'images/*'))
+        self.patch_masks_path = sorted(glob.glob(train_test_path + 'masks/*'))
         self.transforms = transforms
 
     def __len__(self):
