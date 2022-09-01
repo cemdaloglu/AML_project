@@ -31,7 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--path', help='Path for storing checkpoints and results', required=True, default="src/results")
     parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet" or "deep_unet" ', required=False, default="unet")
     parser.add_argument('-r', '--resume', help='Resume training from specified checkpoint', required=False)
-    parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', required=False)
+    parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
     parser.add_argument('-e', '--epochs', help='Number of epochs', default=100, required=True, type=int)
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
     parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int)
