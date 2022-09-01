@@ -128,9 +128,8 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
 
         # Loop over all cities
         for (city_path, city_mask_path), ind in zip(sorted(zip(image_stack, mask_stack)), range(len(image_stack))):
-            print(city_path)
 
-            print(f"Reading file {ind + 1}/{len(image_stack)}")
+            print(f"Reading file {ind + 1}/{len(image_stack)} : {city_path}")
             image_data, mask_data = read_and_return_image_and_mask_gdal(city_path, city_mask_path, thresh, use_infra)
 
             w, h = np.shape(image_data)[0], np.shape(image_data)[1]
