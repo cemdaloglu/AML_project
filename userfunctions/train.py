@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', help='Model name', required=True)
     parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="dat/patches", type=str)
     parser.add_argument('-p', '--path', help='Path for storing checkpoints and results', required=True, default="src/results")
-    parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet" or "deep_unet" ', required=False, default="unet")
+    parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-r', '--resume', help='Resume training from specified checkpoint', required=False)
     parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
     parser.add_argument('-e', '--epochs', help='Number of epochs', default=100, required=True, type=int)

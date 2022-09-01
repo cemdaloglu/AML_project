@@ -2,6 +2,7 @@ import numpy as np
 import glob
 from osgeo import gdal
 import os
+import re
 
 
 
@@ -80,101 +81,124 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
         Patched images saved in folder /patches with in the same parent path as original data
     """
 
-
-    image_stack = glob.glob(path+'images/*2.tif')
-    mask_stack = glob.glob(path+'annotations/*.tif')
-    if not image_stack:
-        print("WARNING: NO FILES IN DIRECTORY")
-
     # Get folder where to store
     if path_output is not None:
         parent = path_output
     else: 
         parent = os.getcwd()
     
-    # Create folders
-    images_path = os.path.join(parent,'patches/images')
-    masks_path = os.path.join(parent,'patches/masks')
+    #image_stack = glob.glob(path+'images/*2.tif')
+    #mask_stack = glob.glob(path+'annotations/*.tif')
+    image_path = os.path.join(path, 'images/')
+    mask_path = os.path.join(path+'annotations/')
 
-    if not os.path.exists(images_path):
-        os.makedirs(images_path)
-    if not os.path.exists(masks_path):
-        os.makedirs(masks_path)
+    train_image_stack = [glob.glob(image_path + city)[0] for city in ['*karlsruhe*', '*munchen*', '*stuttgart*', '*wurzburg*', '*heilbronn*', '*tubingen*']]
+    train_mask_stack = [glob.glob(mask_path + city)[0] for city in ['*karlsruhe*', '*munchen*', '*stuttgart*', '*wurzburg*', '*heilbronn*', '*tubingen*']] 
+    val_image_stack = [glob.glob(image_path + city)[0] for city in ['*freiburg*', '*darmstadt*', '*mainz*']] 
+    val_mask_stack = [glob.glob(mask_path + city)[0] for city in ['*freiburg*', '*darmstadt*', '*mainz*']] 
+    test_image_stack = [glob.glob(image_path + city)[0] for city in ['*heidelberg*', '*frankfurt*']]  
+    test_mask_stack = [glob.glob(mask_path + city)[0] for city in ['*heidelberg*', '*frankfurt*']]  
+
+    train_val_test_list = [(train_image_stack, train_mask_stack), (val_image_stack, val_mask_stack), (test_image_stack, test_mask_stack)]
+    
+    # go through all stacks train, val, test
+    for idx, (image_stack, mask_stack) in zip(range(len(train_val_test_list)), train_val_test_list):
+        
+        if not image_stack:
+            print("WARNING: NO FILES IN DIRECTORY")
+
+        if idx == 0: 
+            stage = 'train'
+        elif idx == 1: 
+            stage = 'val'
+        else: 
+            stage = 'test'
+
+  
+        # Create folders
+        images_path = os.path.join(parent, 'patches', stage, 'images')
+        masks_path = os.path.join(parent, 'patches', stage, 'masks')
+        print(images_path)
+
+        if not os.path.exists(images_path):
+            os.makedirs(images_path)
+        if not os.path.exists(masks_path):
+            os.makedirs(masks_path)
 
 
-    # Loop over all cities
-    for (city_path, city_mask_path), ind in zip(sorted(zip(image_stack, mask_stack)), range(len(image_stack))):
+        # Loop over all cities
+        for (city_path, city_mask_path), ind in zip(sorted(zip(image_stack, mask_stack)), range(len(image_stack))):
+            print(city_path)
 
-        print(f"Reading file {ind + 1}/{len(image_stack)}")
-        image_data, mask_data = read_and_return_image_and_mask_gdal(city_path, city_mask_path, thresh, use_infra)
+            print(f"Reading file {ind + 1}/{len(image_stack)}")
+            image_data, mask_data = read_and_return_image_and_mask_gdal(city_path, city_mask_path, thresh, use_infra)
 
-        w, h = np.shape(image_data)[0], np.shape(image_data)[1]
-        h_div = int(np.ceil(h / (h_size - interseks_ver)))
-        w_div = int(np.ceil(w / (w_size - interseks_hor)))
+            w, h = np.shape(image_data)[0], np.shape(image_data)[1]
+            h_div = int(np.ceil(h / (h_size - interseks_ver)))
+            w_div = int(np.ceil(w / (w_size - interseks_hor)))
 
-        print("Creating patches...")
+            print("Creating patches...")
 
-        if padding:
-            rows_missing = w_size - w % (w_size - interseks_hor)
-            cols_missing = h_size - h % (h_size - interseks_ver)
-            padded_img = np.pad(image_data, ((0, rows_missing), (0, cols_missing), (0, 0)), 'constant')
-            padded_msk = np.pad(mask_data, ((0, rows_missing), (0, cols_missing)), 'constant')
+            if padding:
+                rows_missing = w_size - w % (w_size - interseks_hor)
+                cols_missing = h_size - h % (h_size - interseks_ver)
+                padded_img = np.pad(image_data, ((0, rows_missing), (0, cols_missing), (0, 0)), 'constant')
+                padded_msk = np.pad(mask_data, ((0, rows_missing), (0, cols_missing)), 'constant')
 
-
-            for i in range(h_div):
-                for j in range(w_div):
-                    if i == 0 and j != 0:
-                        cropped_img = padded_img[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    h_size * i:h_size * (i + 1), :]
-                        cropped_msk = padded_msk[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    h_size * i:h_size * (i + 1)]
-                    elif j == 0 and i == 0:
-                        cropped_img = padded_img[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
-                        cropped_msk = padded_msk[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
-                    elif j == 0 and i != 0:
-                        cropped_img = padded_img[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
-                        cropped_msk = padded_msk[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
-                    else:
-                        cropped_img = padded_img[w_size * j:w_size * (j + 1),
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
-                        cropped_msk = padded_msk[w_size * j:w_size * (j + 1),
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
-                    # save
-                    if not (np.sum(cropped_img) == 0 or np.sum(cropped_msk) == 0):
-                        np.save(images_path+"/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
-                        np.save(masks_path+"/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
-        # no padding
-        else:
-            for i in range(h_div - 1):
-                for j in range(w_div - 1):
-                    if i == 0 and j != 0:
-                        cropped_img = image_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    h_size * i:h_size * (i + 1), :]
-                        cropped_msk = image_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    h_size * i:h_size * (i + 1)]
-                    elif j == 0 and i == 0:
-                        cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
-                        cropped_msk = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
-                    elif j == 0 and i != 0:
-                        cropped_img = image_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
-                        cropped_msk = image_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
-                    else:
-                        cropped_img = image_data[w_size * j:w_size * (j + 1),
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
-                        cropped_msk = image_data[w_size * j:w_size * (j + 1),
-                                    (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
-                    if not (np.sum(cropped_img) == 0 or np.sum(cropped_msk) == 0):
-                        np.save(images_path+"/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
-                        np.save(masks_path+"/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
+                for i in range(h_div):
+                    for j in range(w_div):
+                        if i == 0 and j != 0:
+                            cropped_img = padded_img[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        h_size * i:h_size * (i + 1), :]
+                            cropped_msk = padded_msk[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        h_size * i:h_size * (i + 1)]
+                        elif j == 0 and i == 0:
+                            cropped_img = padded_img[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
+                            cropped_msk = padded_msk[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
+                        elif j == 0 and i != 0:
+                            cropped_img = padded_img[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
+                            cropped_msk = padded_msk[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
+                        else:
+                            cropped_img = padded_img[w_size * j:w_size * (j + 1),
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
+                            cropped_msk = padded_msk[w_size * j:w_size * (j + 1),
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
+                        # save
+                        if not (np.sum(cropped_img) == 0 or np.sum(cropped_msk) == 0):
+                            np.save(images_path+"/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
+                            np.save(masks_path+"/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
+            # no padding
+            else:
+                for i in range(h_div - 1):
+                    for j in range(w_div - 1):
+                        if i == 0 and j != 0:
+                            cropped_img = image_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        h_size * i:h_size * (i + 1), :]
+                            cropped_msk = mask_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        h_size * i:h_size * (i + 1)]
+                        elif j == 0 and i == 0:
+                            cropped_img = image_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1), :]
+                            cropped_msk = mask_data[w_size * j:w_size * (j + 1), h_size * i:h_size * (i + 1)]
+                        elif j == 0 and i != 0:
+                            cropped_img = image_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
+                            cropped_msk = mask_data[(w_size - interseks_hor) * j:w_size * (j + 1) - interseks_hor * j,
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
+                        else:
+                            cropped_img = image_data[w_size * j:w_size * (j + 1),
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i, :]
+                            cropped_msk = mask_data[w_size * j:w_size * (j + 1),
+                                        (h_size - interseks_ver) * i:h_size * (i + 1) - interseks_ver * i]
+                        if not (np.sum(cropped_img) == 0 or np.sum(cropped_msk) == 0):
+                            np.save(images_path+"/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
+                            np.save(masks_path+"/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
 
 
 #path = "/media/lia/TOSHIBA EXT/Studium/Uni Heidelberg/3. Semester/AML-project/final/L2A/"
 #imgs_with_msks = read_and_return_image_and_mask_gdal(path)
-#cropped_set_interseks_img_mask(path, 256, 256, False, 0, 0, '../AML_project')    
+#cropped_set_interseks_img_mask(path, 256, 256, True, 0, 0, '../AML_project')    
 
 
 

@@ -14,7 +14,8 @@ def calc_loss(target, pred, criterion, metrics):
         loss = nn.CrossEntropyLoss()
 
     loss = loss(target, pred)
-    metrics['loss'] += loss.data.cpu().numpy() * target.size(0) # TODO probably add f1 stuff
+    if metrics is not None:
+        metrics['loss'] += loss.data.cpu().numpy() * target.size(0) # TODO probably add f1 stuff
 
     return loss
 
