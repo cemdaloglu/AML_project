@@ -90,7 +90,7 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
     #image_stack = glob.glob(path+'images/*2.tif')
     #mask_stack = glob.glob(path+'annotations/*.tif')
     image_path = os.path.join(path, 'images/')
-    mask_path = os.path.join(path+'annotations/')
+    mask_path = os.path.join(path,'annotations/')
 
     train_image_stack = [glob.glob(image_path + city)[0] for city in ['*karlsruhe*', '*munchen*', '*stuttgart*', '*wurzburg*', '*heilbronn*', '*tubingen*']]
     train_mask_stack = [glob.glob(mask_path + city)[0] for city in ['*karlsruhe*', '*munchen*', '*stuttgart*', '*wurzburg*', '*heilbronn*', '*tubingen*']] 
