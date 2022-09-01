@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
     parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int)
     parser.add_argument('--dataloader_workers', help='Num of workers for dataloader', default=3, type=int)
-    parser.add_argument('--train_val_split', help='Fraction for train/val split', default=.8, type=float)
+    
 
     args = parser.parse_args()
 
@@ -82,11 +82,11 @@ if __name__ == '__main__':
         transforms.RandomVerticalFlip(0.2),
         ])
 
-    dataset = CityData(args.train_test_path, transforms) 
+    train_dataset = CityData(os.path.join(args.train_test_path, 'train'), transforms) 
+    val_dataset = CityData(os.path.join(args.train_test_path, 'val'), transforms) 
 
     dataloaders = get_dataloaders(
-        dataset,
-        args.train_val_split,
+        train_dataset,
         args.dataloader_workers,
         args.batch_size
     )

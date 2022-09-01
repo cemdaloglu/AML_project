@@ -4,7 +4,7 @@ import matplotlib as plt
 
 def plot_image_groundtruth_prediction(image, groundtruth, prediction, loss = None):
     if torch.is_tensor(image):
-        image = torch.permute(image, (1, 2, 0)).numpy()
+        image = torch.permute(image[:,:,:3], (1, 2, 0)).numpy()
     if torch.is_tensor(groundtruth):
         groundtruth = groundtruth.numpy()
     if torch.is_tensor(prediction):
@@ -33,7 +33,7 @@ def plot_patches_with_masks(data, data_indices):
         sample = data[ind]
         
         plt.tight_layout()
-        ax[i, 0].imshow(sample['image'])
+        ax[i, 0].imshow(sample['image'][:,:,:3])
         ax[i, 1].imshow(sample['mask'])
 
         if i == n_imgs-1:

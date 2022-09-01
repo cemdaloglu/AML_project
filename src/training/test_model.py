@@ -16,7 +16,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent
 
 
-def test(model, use_cuda: bool, test_loader, n_classes, loss_criterion=None):
+def test(model, test_loader, use_cuda: bool, loss_criterion=None, n_classes = 5):
     """
     Compute test metrics on test data set 
 
