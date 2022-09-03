@@ -37,8 +37,6 @@ class CityData(Dataset):
         msk_name = sorted(os.listdir(self.patch_masks_path))[idx]
         image = np.load(os.path.join(self.patch_imgs_path, img_name))
         mask = np.float32(np.load(os.path.join(self.patch_masks_path, msk_name)))
-
-
         # To tensor 
         image = torch.from_numpy(image).float()
         image = image.permute(2, 0, 1)
@@ -50,5 +48,6 @@ class CityData(Dataset):
 
         # preprocessed image, for input into NN
         sample = {'image': image, 'mask': mask, 'img_idx': idx, 'imagename': img_name}
+
 
         return sample
