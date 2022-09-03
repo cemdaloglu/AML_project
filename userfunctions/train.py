@@ -27,7 +27,7 @@ from src.metric.metric_helpers import create_metric_file
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--name', help='Model name', required=True)
-    parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="dat/patches", type=str)
+    parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="patches", type=str)
     parser.add_argument('-p', '--path', help='Path for storing checkpoints and results', required=True, default="src/results")
     parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-r', '--resume', help='Resume training from specified checkpoint', required=False)
@@ -52,11 +52,11 @@ if __name__ == '__main__':
     # TODO adapt model depending on data (just dummy atm)
     model_choice = args.model
     if model_choice == "vgg_unet":
-        model = UNet(in_channels = args.in_channel)
+        model = UNet()
     elif model_choice == "deep_unet":
-        model = UNet(in_channels = args.in_channel)
+        model = UNet()
     else: 
-        model = UNet(in_channels = args.in_channel)
+        model = UNet()
 
     model = model.to(device)
 
