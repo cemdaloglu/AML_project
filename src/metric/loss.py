@@ -1,5 +1,7 @@
 import numpy as np
 import torch.nn as nn
+import torch
+from sklearn.utils.class_weight import compute_class_weight
 
 
 def calc_loss(target, pred, criterion, metrics = None):
@@ -9,7 +11,9 @@ def calc_loss(target, pred, criterion, metrics = None):
     if criterion == "CEL":
         loss = nn.CrossEntropyLoss()
     elif criterion == "wCEL":
-        loss = nn.CrossEntropyLoss() # TODO
+        class_weights=compute_class_weight('balanced',np.unique(target),target.numpy())
+        class_weights=torch.tensor(class_weights,dtype=torch.float)
+        loss = nn.CrossEntropyLoss(weight=class_weights)
     else:
         loss = nn.CrossEntropyLoss()
 
