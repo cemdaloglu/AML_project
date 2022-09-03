@@ -24,7 +24,7 @@ class CityData(Dataset):
         """
         return the number of total samples contained in the dataset
         """
-        return len(self.patch_imgs_path)
+        return len(os.listdir(self.patch_imgs_path))
 
     def __getitem__(self, idx):
         """ 
