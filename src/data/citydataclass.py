@@ -35,7 +35,7 @@ class CityData(Dataset):
         """
         img_name = sorted(os.listdir(self.patch_imgs_path))[idx]
         msk_name = sorted(os.listdir(self.patch_masks_path))[idx]
-        image = np.load(os.path.join(self.patch_imgs_path, img_name))
+        image = np.float32(np.load(os.path.join(self.patch_imgs_path, img_name)))
         mask = np.float32(np.load(os.path.join(self.patch_masks_path, msk_name)))
         # To tensor 
         image = torch.from_numpy(image).float()
