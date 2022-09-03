@@ -18,18 +18,30 @@ class CityData(Dataset):
         """
         self.transforms = transforms
         self.images = []
-        self.labels = []
+        self.masks = []
+        self.imagenames = []
+        self.masksnames = []
 
         # Define Dataset 
-        self.patch_imgs_path = sorted(glob.glob(train_test_path + 'images/*'))
-        self.patch_masks_path = sorted(glob.glob(train_test_path + 'masks/*'))
+        patch_imgs_path = os.path.join(train_test_path, 'images/')
+        patch_masks_path = os.path.join(train_test_path, 'masks/')
         self.transforms = transforms
+
+        for img in sorted(os.listdir(patch_imgs_path)):
+            image = np.load(os.path.join(patch_imgs_path + img))
+            self.images.append(image)
+            self.imagenames.append(img)
+
+                
+        for msk in sorted(os.listdir(patch_masks_path)):
+            mask = np.float32(np.load(patch_masks_path + msk))
+            self.masks.append(mask)
 
     def __len__(self):
         """
         return the number of total samples contained in the dataset
         """
-        return len(self.patch_imgs_path)
+        return len(self.images)
 
     def __getitem__(self, idx): 
         """ 
@@ -39,19 +51,24 @@ class CityData(Dataset):
         - 'img_idx' value: index of sample
         """
 
-        image = imread(self.patch_imgs_path[idx])
-        mask = imread(self.patch_masks_path[idx])
+        image = self.images[idx]
+        mask = self.masks[idx]
+        imagename = self.imagenames[idx]
         
         # To tensor 
-        image = torch.from_numpy(image) 
-        mask = torch.from_numpy(mask)    
+        image = torch.from_numpy(image).float()
+        image = image.permute(2,0,1)
+        mask = torch.from_numpy(mask).float()
 
         #preprocessed image, for input into NN
-        sample = {'image':image, 'mask':mask, 'img_idx':idx}
+        sample = {'image':image, 'mask':mask, 'img_idx':idx, 'imagename' : imagename}
 
         if self.transforms:
             sample = self.transforms(sample)
 
         return sample
+
+
+
 
 
