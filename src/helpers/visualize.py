@@ -1,6 +1,9 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sn
+import pandas as pd
+
 
 def plot_image_groundtruth_prediction(image, groundtruth, prediction, loss = None):
     if torch.is_tensor(image):
@@ -73,3 +76,19 @@ def plot_training(total_loss, total_acc):
     plt.ylabel('accuracy')
     plt.legend(['train_acc', 'val_acc'])
     plt.show()
+
+
+def plot_test(test_losses, acc, pre, recall, f1, conf_matrix, num_correct, num_pixels):
+    # print metrics
+    print("Mean Loss:", np.mean(test_losses), "\nMean Acc:", acc, "\nMean Macro Precision:", pre,
+          "\nMean Macro Recall:", recall,
+          "\nMean Macro F1 Score:", f1)
+
+    # plot confusion matrix
+    df_cm = pd.DataFrame(conf_matrix, index=["unknown", "agriculture", "forest", "city", "wetlands", "water"],
+                         columns=["unknown", "agriculture", "forest", "city", "wetlands", "water"])
+    plt.figure(figsize=(10, 7))
+    sn.heatmap(df_cm, annot=True)
+
+    test_accuracy = (num_correct / num_pixels * 100).cpu().numpy()
+    print(f"Got {num_correct}/{num_pixels} with acc {test_accuracy}")
