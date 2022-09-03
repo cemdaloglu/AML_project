@@ -20,15 +20,6 @@ class CityData(Dataset):
         self.patch_masks_path = os.path.join(train_test_path, 'masks/')
         self.transforms = transforms
 
-        #for img in sorted(os.listdir(self.patch_imgs_path)):
-        #    image = np.load(os.path.join(self.patch_imgs_path + img))
-        #    self.images.append(image)
-        #    self.imagenames.append(img)
-
-        #for msk in sorted(os.listdir(self.patch_masks_path)):
-        #    mask = np.float32(np.load(self.patch_masks_path + msk))
-        #    self.masks.append(mask)
-
     def __len__(self):
         """
         return the number of total samples contained in the dataset
