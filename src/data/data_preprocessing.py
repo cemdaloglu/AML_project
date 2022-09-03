@@ -196,8 +196,9 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
 
 
 #path = "/media/lia/TOSHIBA EXT/Studium/Uni Heidelberg/3. Semester/AML-project/final/L2A/"
+path = "/Volumes/TOSHIBA EXT/Studium/Uni Heidelberg/3. Semester/AML-project/final/L2A"
 #imgs_with_msks = read_and_return_image_and_mask_gdal(path)
-#cropped_set_interseks_img_mask(path, 256, 256, True, 0, 0, '../AML_project')    
+cropped_set_interseks_img_mask(path, 256, 256, True, 0, 0, '../AML_project')    
 
 
 

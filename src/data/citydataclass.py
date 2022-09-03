@@ -1,29 +1,33 @@
 import os
-from matplotlib.transforms import Transform
-
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from skimage.io import imread
 import glob
+
 
 class CityData(Dataset):
 
-    def __init__(self, train_test_path, transforms = None):
+    def __init__(self, train_test_path, transforms=None):
         """
         train_test_path -- path to either "train", "val", or "test" containing subfolders 'images' and 'masks' where the patched data lies, e.g. ../patches/train
         transform -- transform (from torchvision.transforms) to be applied to the data
 
         Usage: citydata = CityData(train_test_path)
         """
-        self.transforms = transforms
-        self.images = []
-        self.labels = []
 
         # Define Dataset 
-        self.patch_imgs_path = sorted(glob.glob(train_test_path + 'images/*'))
-        self.patch_masks_path = sorted(glob.glob(train_test_path + 'masks/*'))
+        self.patch_imgs_path = os.path.join(train_test_path, 'images/')
+        self.patch_masks_path = os.path.join(train_test_path, 'masks/')
         self.transforms = transforms
+
+        #for img in sorted(os.listdir(self.patch_imgs_path)):
+        #    image = np.load(os.path.join(self.patch_imgs_path + img))
+        #    self.images.append(image)
+        #    self.imagenames.append(img)
+
+        #for msk in sorted(os.listdir(self.patch_masks_path)):
+        #    mask = np.float32(np.load(self.patch_masks_path + msk))
+        #    self.masks.append(mask)
 
     def __len__(self):
         """
@@ -31,27 +35,29 @@ class CityData(Dataset):
         """
         return len(self.patch_imgs_path)
 
-    def __getitem__(self, idx): 
+    def __getitem__(self, idx):
         """ 
         Return the examples at index [idx]. The example is a dict with keys 
         - 'images' value: Tensor for an RGB image of shape 
         - 'mask' value: ground truth labels 0,..., n_classes of shape
         - 'img_idx' value: index of sample
         """
+        img_name = sorted(os.listdir(self.patch_imgs_path))[idx]
+        msk_name = sorted(os.listdir(self.patch_masks_path))[idx]
+        image = np.load(os.path.join(self.patch_imgs_path, img_name))
+        mask = np.float32(np.load(os.path.join(self.patch_masks_path, msk_name)))
 
-        image = imread(self.patch_imgs_path[idx])
-        mask = imread(self.patch_masks_path[idx])
-        
+
         # To tensor 
-        image = torch.from_numpy(image) 
-        mask = torch.from_numpy(mask)    
-
-        #preprocessed image, for input into NN
-        sample = {'image':image, 'mask':mask, 'img_idx':idx}
+        image = torch.from_numpy(image).float()
+        image = image.permute(2, 0, 1)
+        mask = torch.from_numpy(mask).float()
 
         if self.transforms:
-            sample = self.transforms(sample)
+            image = self.transforms(image)
+            mask = self.transforms(mask)
+
+        # preprocessed image, for input into NN
+        sample = {'image': image, 'mask': mask, 'img_idx': idx, 'imagename': img_name}
 
         return sample
-
-

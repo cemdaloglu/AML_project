@@ -2,7 +2,7 @@ import numpy as np
 import torch.nn as nn
 
 
-def calc_loss(target, pred, criterion, metrics):
+def calc_loss(target, pred, criterion, metrics = None):
     '''
     TODO: THINK ABOUT NICE LOSS AND ALSO WEIGHTS
     '''
@@ -13,7 +13,7 @@ def calc_loss(target, pred, criterion, metrics):
     else:
         loss = nn.CrossEntropyLoss()
 
-    loss = loss(target, pred)
+    loss = loss(target, pred.long())
     if metrics is not None:
         metrics['loss'] += loss.data.cpu().numpy() * target.size(0) # TODO probably add f1 stuff
 
