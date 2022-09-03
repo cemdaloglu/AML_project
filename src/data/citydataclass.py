@@ -14,31 +14,17 @@ class CityData(Dataset):
 
         Usage: citydata = CityData(train_test_path)
         """
-        self.transforms = transforms
-        self.images = []
-        self.masks = []
-        self.imagenames = []
-        self.masksnames = []
 
         # Define Dataset 
-        patch_imgs_path = os.path.join(train_test_path, 'images/')
-        patch_masks_path = os.path.join(train_test_path, 'masks/')
+        self.patch_imgs_path = os.path.join(train_test_path, 'images/')
+        self.patch_masks_path = os.path.join(train_test_path, 'masks/')
         self.transforms = transforms
-
-        for img in sorted(os.listdir(patch_imgs_path)):
-            image = np.load(os.path.join(patch_imgs_path + img))
-            self.images.append(image)
-            self.imagenames.append(img)
-
-        for msk in sorted(os.listdir(patch_masks_path)):
-            mask = np.float32(np.load(patch_masks_path + msk))
-            self.masks.append(mask)
 
     def __len__(self):
         """
         return the number of total samples contained in the dataset
         """
-        return len(self.images)
+        return len(os.listdir(self.patch_imgs_path))
 
     def __getitem__(self, idx):
         """ 
@@ -47,20 +33,21 @@ class CityData(Dataset):
         - 'mask' value: ground truth labels 0,..., n_classes of shape
         - 'img_idx' value: index of sample
         """
-
-        image = self.images[idx]
-        mask = self.masks[idx]
-        imagename = self.imagenames[idx]
-
+        img_name = sorted(os.listdir(self.patch_imgs_path))[idx]
+        msk_name = sorted(os.listdir(self.patch_masks_path))[idx]
+        image = np.load(os.path.join(self.patch_imgs_path, img_name))
+        mask = np.float32(np.load(os.path.join(self.patch_masks_path, msk_name)))
         # To tensor 
         image = torch.from_numpy(image).float()
         image = image.permute(2, 0, 1)
         mask = torch.from_numpy(mask).float()
 
-        # preprocessed image, for input into NN
-        sample = {'image': image, 'mask': mask, 'img_idx': idx, 'imagename': imagename}
-
         if self.transforms:
-            sample = self.transforms(sample)
+            image = self.transforms(image)
+            mask = self.transforms(mask)
+
+        # preprocessed image, for input into NN
+        sample = {'image': image, 'mask': mask, 'img_idx': idx, 'imagename': img_name}
+
 
         return sample
