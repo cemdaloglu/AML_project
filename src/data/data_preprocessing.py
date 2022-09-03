@@ -6,7 +6,7 @@ import re
 
 
 
-def read_and_return_image_and_mask_gdal(image_path: str, mask_path: str, thresh: int = 3558, use_infra: bool = True): 
+def read_and_return_image_and_mask_gdal(image_path: str, mask_path: str, thresh: int = 6000, use_infra: bool = True): 
 
     """
     Reads in images and corresponding masks from path. rgb image is extracted and normalizes
@@ -46,17 +46,17 @@ def read_and_return_image_and_mask_gdal(image_path: str, mask_path: str, thresh:
     indices = rgbi_img > thresh
     rgbi_img[indices] = thresh
 
-    rgbi_img_norm = np.zeros_like(rgbi_img, dtype=float)
+    #rgbi_img_norm = np.zeros_like(rgbi_img, dtype=float)
 
-    for chan in range(np.shape(rgbi_img)[2]):
-        rgbi_img_norm[:, :, chan] = (rgbi_img[:, :, chan] - np.min(rgbi_img[:, :, chan])) / (
-            np.max(rgbi_img[:, :, chan]) - np.min(rgbi_img[:, :, chan]))
+    #for chan in range(np.shape(rgbi_img)[2]):
+    #    rgbi_img_norm[:, :, chan] = (rgbi_img[:, :, chan] - np.min(rgbi_img[:, :, chan])) / (
+    #        np.max(rgbi_img[:, :, chan]) - np.min(rgbi_img[:, :, chan]))
 
 
     # Read mask and append to mask list
     mask = mask_set.GetRasterBand(1).ReadAsArray(0, 0) 
 
-    return rgbi_img_norm, mask
+    return rgbi_img, mask
 
 
 def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int, 
@@ -194,11 +194,6 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
                             np.save(images_path+"/image_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_img)
                             np.save(masks_path+"/mask_"+ str(ind)+"_"+ str(i)+"_"+str(j)+ ".npy", cropped_msk)
 
-
-#path = "/media/lia/TOSHIBA EXT/Studium/Uni Heidelberg/3. Semester/AML-project/final/L2A/"
-path = "/Volumes/TOSHIBA EXT/Studium/Uni Heidelberg/3. Semester/AML-project/final/L2A"
-#imgs_with_msks = read_and_return_image_and_mask_gdal(path)
-cropped_set_interseks_img_mask(path, 256, 256, True, 0, 0, '../AML_project')    
 
 
 

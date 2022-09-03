@@ -7,6 +7,8 @@ from ..metric.loss import calc_loss
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
+from src.helpers.visualize import plot_training
+
 
 def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_path_model, loss_criterion: str,
                 trained_epochs: int = 0):
@@ -16,7 +18,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
 
     # iterate over all epochs
     for epoch in range(trained_epochs, num_epochs):
-        print(f'Epoch {epoch}/{num_epochs}')
+        print(f'Epoch {epoch+1}/{num_epochs}')
         print('-' * 10)
 
         since = time.time()
@@ -63,6 +65,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                 acc = ((outputs.argmax(dim=1) == labels).float().mean())
                 epoch_accuracy += acc / len(dataloaders[phase])
                 epoch_loss += loss / len(dataloaders[phase])
+            print('Epoch : {}, train accuracy : {}, train loss : {}'.format(epoch+1, epoch_accuracy, epoch_loss))
             total_acc[phase].append(epoch_accuracy)
             total_loss[phase].append(epoch_loss)
 
@@ -81,22 +84,9 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
 
     print('Best val loss: {:4f}'.format(best_loss))
 
-    plt.plot(total_loss['train'], color='blue')
-    plt.plot(total_loss['val'], color='orange')
-    plt.title("Loss")
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.legend(['train_loss', 'valid_loss'])
-    plt.show()
-
-    plt.plot(total_acc['train'], color='blue')
-    plt.plot(total_acc['val'], color='orange')
-    plt.title("Accuracy")
-    plt.xlabel('epoch')
-    plt.ylabel('accuracy')
-    plt.legend(['train_acc', 'val_acc'])
-    plt.show()
+    plot_training(total_loss, total_acc)
 
     # load best model weights
     model.load_state_dict(torch.load(checkpoint_path_model))
+
     return model

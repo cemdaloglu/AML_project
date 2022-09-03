@@ -197,3 +197,6 @@ docs/_build/
 annotations/**
 images/**
 patches/**
+
+# ignore weighted models 
+*.pth
