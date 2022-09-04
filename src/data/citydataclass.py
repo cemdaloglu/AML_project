@@ -21,6 +21,7 @@ class CityData(Dataset):
         self.patch_masks_path = os.path.join(train_test_path, 'masks/')
         self.transforms = transforms
 
+        # below is hard-coded, should be changed according to the dataset
         self.mean, self.std = [379.269, 635.007, 639.240, 2490.004], [315.045, 391.499, 547.360, 671.904]
         self.transform_norm = torchvision.transforms.Compose([torchvision.transforms.Normalize(self.mean, self.std)])
 
