@@ -9,7 +9,7 @@ def calc_loss(target, pred, criterion, metrics=None):
     TODO: THINK ABOUT NICE LOSS AND ALSO WEIGHTS
     '''
     if criterion == "CEL":
-        loss = nn.CrossEntropyLoss()
+        loss = nn.CrossEntropyLoss(ignore_index=0)
     elif criterion == "wCEL":
         class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(target.cpu().numpy()),
                                              y=np.ravel(target.cpu().numpy()))
@@ -35,7 +35,7 @@ def calc_loss(target, pred, criterion, metrics=None):
             class_weights_new[5] = class_weights[w_idx]
 
         class_weights = torch.tensor(class_weights_new, dtype=torch.float).cuda()
-        loss = nn.CrossEntropyLoss(weight=class_weights)
+        loss = nn.CrossEntropyLoss(weight=class_weights, ignore_index=0)
     else:
         loss = nn.CrossEntropyLoss()
 
