@@ -4,7 +4,6 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 import glob
-from mean_std_finder import mean_std_finder
 
 
 class CityData(Dataset):
@@ -22,9 +21,9 @@ class CityData(Dataset):
         self.patch_masks_path = os.path.join(train_test_path, 'masks/')
         self.transforms = transforms
 
-        self.mean, self.std = None, None
-        self.transform_norm = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
-                                                              torchvision.transforms.Normalize(self.mean, self.std)])
+        # below is hard-coded, should be changed according to the dataset
+        self.mean, self.std = [379.269, 635.007, 639.240, 2490.004], [315.045, 391.499, 547.360, 671.904]
+        self.transform_norm = torchvision.transforms.Compose([torchvision.transforms.Normalize(self.mean, self.std)])
 
     def __len__(self):
         """
@@ -48,7 +47,6 @@ class CityData(Dataset):
         image = image.permute(2, 0, 1)
         mask = torch.from_numpy(mask).float()
 
-        self.mean, self.std = image.mean([1, 2]), image.std([1, 2])
         image = self.transform_norm(image)
         if self.transforms:
             image = self.transforms(image)

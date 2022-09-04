@@ -51,7 +51,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
 
                     # output is probability [batch size, n_classes, H, W], target is class [batch size, H, W]
                     # TODO: decide on loss!! (dummy function here)
-                    loss = calc_loss(outputs, labels, loss_criterion, metrics)
+                    loss = calc_loss(labels, outputs, loss_criterion, metrics)
 
                     # backward + optimize only if in training phase (no need for torch.no_grad in this training pass)
                     if phase == 'train':
