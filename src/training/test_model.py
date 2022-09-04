@@ -58,7 +58,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion=None, n_classes = 5)
             prediction = model(images)  # torch.Size([batch_size, n_classes, h, w])
 
             # compute and save loss
-            test_loss = calc_loss(prediction, labels.long(), criterion=loss_criterion)
+            test_loss = calc_loss(labels.long(), prediction, criterion=loss_criterion)
             test_losses.extend(test_loss.cpu().numpy().reshape(-1))
 
             # take argmax to get class 
