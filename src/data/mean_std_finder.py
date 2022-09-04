@@ -1,4 +1,4 @@
-from data_preprocessing import read_and_return_image_and_mask_gdal
+from .data_preprocessing import read_and_return_image_and_mask_gdal
 import numpy as np
 import glob
 
