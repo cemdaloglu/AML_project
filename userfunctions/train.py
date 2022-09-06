@@ -80,20 +80,28 @@ if __name__ == '__main__':
         create_metric_file(training_metrics_path + "metrics.csv")
         trained_epochs = 0
 
-
-    # TODO: Flips must be guaranteed to be the same on image and mask!
-    #       Currently this is not the case!
     # Create dataset for training and validation and get dataloaders
-    # transform = transforms.Compose([
-    #     transforms.RandomHorizontalFlip(args.horizontal_flip), 
-    #     transforms.RandomVerticalFlip(args.vertical_flip),
-    # ])
-
-    transform = None
+    transform = transforms.Compose([
+        transforms.RandomHorizontalFlip(args.horizontal_flip), 
+        transforms.RandomVerticalFlip(args.vertical_flip),
+    ])
+    target_transform = transforms.Compose([
+        transforms.RandomHorizontalFlip(args.horizontal_flip), 
+        transforms.RandomVerticalFlip(args.vertical_flip),
+    ])
 
     print("train_data path = ", os.path.join(args.train_test_path, 'train'))
-    train_dataset = CityData(os.path.join(args.train_test_path, 'train'), transform) 
-    val_dataset = CityData(os.path.join(args.train_test_path, 'val'), transform) 
+    train_dataset = CityData(
+        os.path.join(args.train_test_path, 'train'),
+        transform,
+        target_transform
+    ) 
+    val_dataset = CityData(
+        os.path.join(args.train_test_path, 'val'),
+        transform,
+        target_transform
+    ) 
+
 
     dataloaders = get_dataloaders(
         train_dataset,
