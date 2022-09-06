@@ -4,15 +4,11 @@ import os
 import shutil
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-import matplotlib as plt
 import pandas as pd
 import torch
-import torchvision
 from torch.optim import Adam
-from torch.optim import lr_scheduler
-from torch.nn import CrossEntropyLoss
 from torchvision import transforms
 
 from tensorboardX import SummaryWriter
@@ -20,6 +16,7 @@ from tensorboardX import SummaryWriter
 from src.data.citydataclass import CityData
 from src.data.dataloader import get_dataloaders
 from src.models.unet import UNet
+from src.models.vgg16unet import VGG16UNet
 from src.training.train_model import train_model
 from src.metric.metric_helpers import create_metric_file
 
@@ -29,7 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', help='Model name', required=True)
     parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="patches", type=str)
     parser.add_argument('-p', '--result_path', help='Path for storing checkpoints and results', required=False, default="src/results")
-    parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet" or "deep_unet" ', type=str, required=False, default="unet")
+    parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-r', '--resume', help='Resume training from specified checkpoint', required=False)
     parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
     parser.add_argument('-e', '--epochs', help='Number of epochs', default=100, required=True, type=int)
@@ -57,7 +54,9 @@ if __name__ == '__main__':
     # TODO adapt model depending on data (just dummy atm)
     model_choice = args.model
     if model_choice == "vgg_unet":
-        model = UNet(out_classes = args.out_classes)
+        model = VGG16UNet(out_classes = args.out_classes, pretrained=False)
+    elif model_choice == "vgg_unet_pretrained":
+        model = VGG16UNet(out_classes = args.out_classes, pretrained=True)
     elif model_choice == "deep_unet":
         model = UNet(out_classes = args.out_classes)
     else: 
@@ -82,14 +81,19 @@ if __name__ == '__main__':
         trained_epochs = 0
 
 
+    # TODO: Flips must be guaranteed to be the same on image and mask!
+    #       Currently this is not the case!
     # Create dataset for training and validation and get dataloaders
-    transforms = transforms.Compose([transforms.RandomHorizontalFlip(args.horizontal_flip), 
-        transforms.RandomVerticalFlip(args.vertical_flip),
-        ])
+    # transform = transforms.Compose([
+    #     transforms.RandomHorizontalFlip(args.horizontal_flip), 
+    #     transforms.RandomVerticalFlip(args.vertical_flip),
+    # ])
+
+    transform = None
 
     print("train_data path = ", os.path.join(args.train_test_path, 'train'))
-    train_dataset = CityData(os.path.join(args.train_test_path, 'train'), transforms) 
-    val_dataset = CityData(os.path.join(args.train_test_path, 'val'), transforms) 
+    train_dataset = CityData(os.path.join(args.train_test_path, 'train'), transform) 
+    val_dataset = CityData(os.path.join(args.train_test_path, 'val'), transform) 
 
     dataloaders = get_dataloaders(
         train_dataset,

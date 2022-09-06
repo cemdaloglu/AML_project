@@ -3,7 +3,7 @@
 import time
 import torch
 from tqdm import tqdm
-from ..metric.loss import calc_loss
+from ..metric.loss import calc_loss, init_loss
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
@@ -15,13 +15,13 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
     best_loss = 1e10
     total_acc = {key: [] for key in ['train', 'val']}
     total_loss = {key: [] for key in ['train', 'val']}
+    loss_fn = init_loss(loss_criterion, use_cuda)
+    since = time.time()
 
     # iterate over all epochs
     for epoch in range(trained_epochs, num_epochs):
         print(f'Epoch {epoch+1}/{num_epochs}')
         print('-' * 10)
-
-        since = time.time()
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
@@ -31,7 +31,8 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                 model.eval()
 
             metrics = defaultdict(float)
-            epoch_samples = 0
+            epoch_accuracy = 0
+            epoch_loss = 0
 
             for dic in tqdm(dataloaders[phase], total=len(dataloaders[phase])):
                 inputs, labels = dic['image'], dic['mask']
@@ -42,8 +43,6 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
 
                 optimizer.zero_grad()  # zero the parameter gradients
 
-                epoch_accuracy = 0
-                epoch_loss = 0
                 # forward pass: compute prediction and the loss btw prediction and true label
                 # track history only in train
                 with torch.set_grad_enabled(phase == 'train'):
@@ -51,26 +50,21 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
 
                     # output is probability [batch size, n_classes, H, W], target is class [batch size, H, W]
                     # TODO: decide on loss!! (dummy function here)
-                    loss = calc_loss(labels, outputs, loss_criterion, metrics)
+                    loss = calc_loss(labels, outputs, loss_fn, metrics)
 
                     # backward + optimize only if in training phase (no need for torch.no_grad in this training pass)
                     if phase == 'train':
                         loss.backward()
                         optimizer.step()
-                    epoch_loss += loss
 
                 # statistics
-                epoch_samples += inputs.size(0)
-
                 acc = ((outputs.argmax(dim=1) == labels).float().mean())
                 epoch_accuracy += acc / len(dataloaders[phase])
                 epoch_loss += loss / len(dataloaders[phase])
-            print('Epoch : {}, train accuracy : {}, train loss : {}'.format(epoch+1, epoch_accuracy, epoch_loss))
-            total_acc[phase].append(epoch_accuracy)
-            total_loss[phase].append(epoch_loss)
 
-            epoch_loss = loss / epoch_samples
-            print("epoch_loss = ", epoch_loss)
+            print(f'Epoch : {epoch+1}, {phase} avg accuracy : {epoch_accuracy}, {phase} avg loss : {epoch_loss}')
+            total_acc[phase].append(epoch_accuracy.item())
+            total_loss[phase].append(epoch_loss.item())
 
             # save the model weights in validation phase 
             if phase == 'val':
@@ -79,8 +73,9 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                     best_loss = epoch_loss
                     torch.save(model.state_dict(), checkpoint_path_model)
 
+        # Display total time
         time_elapsed = time.time() - since
-        print('{:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+        print('Total time elapsed: {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
 
     print('Best val loss: {:4f}'.format(best_loss))
 

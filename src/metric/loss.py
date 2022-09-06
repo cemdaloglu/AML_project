@@ -4,44 +4,33 @@ import torch
 from sklearn.utils.class_weight import compute_class_weight
 
 
-def calc_loss(target, pred, criterion, metrics=None):
+def init_loss(criterion, use_cuda):
     '''
     TODO: THINK ABOUT NICE LOSS AND ALSO WEIGHTS
     '''
     if criterion == "CEL":
-        loss = nn.CrossEntropyLoss(ignore_index=0)
+        loss_fn = nn.CrossEntropyLoss(ignore_index=0)
     elif criterion == "wCEL":
-        class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(target.cpu().numpy()),
-                                             y=np.ravel(target.cpu().numpy()))
+        # Inverse proportional weights precomputed over the training set
+        class_weights = torch.Tensor([
+            0.0, 9.99059101e-04, 3.57044073e-04,
+            5.47888215e-04, 9.86815635e-01, 1.12803738e-02
+        ])
 
-        class_weights_new = np.zeros((6))
-        if np.any(np.unique(target.cpu().numpy()) == 0):
-            w_idx = list(np.unique(target.cpu().numpy())).index(0)
-            class_weights_new[0] = class_weights[w_idx]
-        if np.any(np.unique(target.cpu().numpy()) == 1):
-            w_idx = list(np.unique(target.cpu().numpy())).index(1)
-            class_weights_new[1] = class_weights[w_idx]
-        if np.any(np.unique(target.cpu().numpy()) == 2):
-            w_idx = list(np.unique(target.cpu().numpy())).index(2)
-            class_weights_new[2] = class_weights[w_idx]
-        if np.any(np.unique(target.cpu().numpy()) == 3):
-            w_idx = list(np.unique(target.cpu().numpy())).index(3)
-            class_weights_new[3] = class_weights[w_idx]
-        if np.any(np.unique(target.cpu().numpy()) == 4):
-            w_idx = list(np.unique(target.cpu().numpy())).index(4)
-            class_weights_new[4] = class_weights[w_idx]
-        if np.any(np.unique(target.cpu().numpy()) == 5):
-            w_idx = list(np.unique(target.cpu().numpy())).index(5)
-            class_weights_new[5] = class_weights[w_idx]
-
-        class_weights = torch.tensor(class_weights_new, dtype=torch.float).cuda()
-        loss = nn.CrossEntropyLoss(weight=class_weights, ignore_index=0)
+        loss_fn = nn.CrossEntropyLoss(weight=class_weights, ignore_index=0)
     else:
-        loss = nn.CrossEntropyLoss()
+        loss_fn = nn.CrossEntropyLoss(ignore_index=0)
 
-    loss = loss(pred, target.long())
+    if use_cuda:
+        loss_fn.cuda()
+
+    return loss_fn
+
+def calc_loss(target, pred, loss_fn, metrics=None):
+    loss = loss_fn(pred, target.long())
+
     if metrics is not None:
-        metrics['loss'] += loss.data.cpu().numpy() * target.size(0)  # TODO probably add f1 stuff
+        metrics['loss'] += loss.item() * target.size(0)  # TODO probably add f1 stuff
 
     return loss
 
