@@ -61,7 +61,6 @@ class UNet(nn.Module):
         self.up_conv1 = UpBlock(128 + 64, 64)
         # Final Convolution
         self.conv_last = nn.Conv2d(64, out_classes, kernel_size=1)
-        self.m = nn.Softmax(dim=1)
 
     def forward(self, x):
         x, skip1_out = self.down_conv1(x)
@@ -75,6 +74,5 @@ class UNet(nn.Module):
         x = self.up_conv2(x, skip2_out)
         x = self.up_conv1(x, skip1_out)
         x = self.conv_last(x)
-        x = self.m(x)
         return x
 
