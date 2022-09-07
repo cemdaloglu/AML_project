@@ -192,6 +192,7 @@ docs/_build/
 
 # Custom
 .ipynb_checkpoints
+.vscode
 
 # ignore Image folders
 annotations/**
