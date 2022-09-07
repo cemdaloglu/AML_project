@@ -26,12 +26,8 @@ def init_loss(criterion, use_cuda):
 
     return loss_fn
 
-def calc_loss(target, pred, loss_fn, metrics=None):
+def calc_loss(target, pred, loss_fn):
     loss = loss_fn(pred, target.long())
-
-    if metrics is not None:
-        metrics['loss'] += loss.item() * target.size(0)  # TODO probably add f1 stuff
-
     return loss
 
 

@@ -4,8 +4,7 @@ import time
 import torch
 from tqdm import tqdm
 from ..metric.loss import calc_loss, init_loss
-import matplotlib.pyplot as plt
-from collections import defaultdict
+from torchmetrics import Accuracy, F1Score, Precision, Recall, MetricCollection
 
 from src.helpers.visualize import plot_training
 
@@ -17,6 +16,16 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
     total_loss = {key: [] for key in ['train', 'val']}
     loss_fn = init_loss(loss_criterion, use_cuda)
     since = time.time()
+
+    metrics = MetricCollection([
+        Accuracy(ignore_index=0, mdmc_average="global"),
+        F1Score(ignore_index=0, mdmc_average="global"),
+        Precision(ignore_index=0, mdmc_average="global"),
+        Recall(ignore_index=0, mdmc_average="global")
+    ])
+
+    train_metrics = metrics.clone(prefix="train")
+    val_metrics = metrics.clone(prefix="val")
 
     # iterate over all epochs
     for epoch in range(trained_epochs, num_epochs):
@@ -30,8 +39,6 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
             else:
                 model.eval()
 
-            metrics = defaultdict(float)
-            epoch_accuracy = 0
             epoch_loss = 0
 
             for dic in tqdm(dataloaders[phase], total=len(dataloaders[phase])):
@@ -49,8 +56,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                     outputs = model(inputs)
 
                     # output is probability [batch size, n_classes, H, W], target is class [batch size, H, W]
-                    # TODO: decide on loss!! (dummy function here)
-                    loss = calc_loss(labels, outputs, loss_fn, metrics)
+                    loss = calc_loss(labels, outputs, loss_fn)
 
                     # backward + optimize only if in training phase (no need for torch.no_grad in this training pass)
                     if phase == 'train':
@@ -58,13 +64,31 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                         optimizer.step()
 
                 # statistics
-                acc = ((outputs.argmax(dim=1) == labels).float().mean())
-                epoch_accuracy += acc / len(dataloaders[phase])
                 epoch_loss += loss / len(dataloaders[phase])
+                preds_cpu = outputs.argmax(dim=1).cpu()
+                labels_cpu = labels.cpu()
+                if phase == "train":
+                    train_metrics.update(preds_cpu, labels_cpu)
+                elif phase == "val":
+                    val_metrics.update(preds_cpu, labels_cpu)
 
-            print(f'Epoch : {epoch+1}, {phase} avg accuracy : {epoch_accuracy}, {phase} avg loss : {epoch_loss}')
-            total_acc[phase].append(epoch_accuracy.item())
-            total_loss[phase].append(epoch_loss.item())
+            if phase == "train":
+                computed_metrics = train_metrics.compute()
+                train_metrics.reset()
+            elif phase == "val":
+                computed_metrics = val_metrics.compute()
+                val_metrics.reset()
+
+            computed_metrics[f"{phase}Loss"] = epoch_loss
+
+            epoch_summary = f'Epoch {phase} : {epoch+1}'
+            for k, v in computed_metrics.items():
+                epoch_summary = f"{epoch_summary}\n\t{k} : {v.item():.6f}"
+
+            print(epoch_summary)
+
+            total_acc[phase].append(computed_metrics[f"{phase}Accuracy"].item())
+            total_loss[phase].append(computed_metrics[f"{phase}Loss"].item())
 
             # save the model weights in validation phase 
             if phase == 'val':
