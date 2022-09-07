@@ -46,7 +46,7 @@ def get_test_dataloaders(test_dataset, dataloader_workers: int = 3, batch_size: 
         test_dataset,
         batch_size=batch_size,
         shuffle=True,
-        drop_last=True,
+        drop_last=False,
         **kwargs
     )
     return test_loader
