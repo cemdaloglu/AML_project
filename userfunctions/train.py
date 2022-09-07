@@ -28,6 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--result_path', help='Path for storing checkpoints and results', required=False, default="src/results")
     parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-r', '--resume', help='Resume training from specified checkpoint', required=False)
+    parser.add_argument('--pretrained_path', help='Path to pretrained weights for VGG16 UNet. Ignored for all other models', type=str, required=False)
     parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
     parser.add_argument('-e', '--epochs', help='Number of epochs', default=100, required=True, type=int)
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
@@ -42,6 +43,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    if args.model == "vgg_unet_pretrained":
+        assert args.pretrained_path is not None, \
+            "Please specify the location of pretrained weights with --pretrained_path"
+
     use_cuda = torch.cuda.is_available()
     device = torch.device('cuda' if use_cuda else 'cpu')
     print("Using cuda?", use_cuda)
@@ -54,9 +59,11 @@ if __name__ == '__main__':
     # TODO adapt model depending on data (just dummy atm)
     model_choice = args.model
     if model_choice == "vgg_unet":
-        model = VGG16UNet(out_classes = args.out_classes, pretrained=False)
+        model = VGG16UNet(out_classes=args.out_classes, pretrained=False)
     elif model_choice == "vgg_unet_pretrained":
-        model = VGG16UNet(out_classes = args.out_classes, pretrained=True)
+        model = VGG16UNet(out_classes=args.out_classes,
+                          checkpoint_path=args.pretrained_path,
+                          pretrained=True)
     elif model_choice == "deep_unet":
         model = UNet(out_classes = args.out_classes)
     else: 
