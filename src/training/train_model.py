@@ -10,7 +10,7 @@ from src.helpers.visualize import plot_training
 
 
 def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_path_model, loss_criterion: str,
-                trained_epochs: int = 0):
+                trained_epochs: int = 0, tb_writer = None):
     best_loss = 1e10
     total_acc = {key: [] for key in ['train', 'val']}
     total_loss = {key: [] for key in ['train', 'val']}
@@ -89,6 +89,11 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
 
             total_acc[phase].append(computed_metrics[f"{phase}Accuracy"].item())
             total_loss[phase].append(computed_metrics[f"{phase}Loss"].item())
+
+            # Display metrics in Tensorboard
+            if tb_writer is not None:
+                for item in ["Loss", "Accuracy", "F1Score", "Precision", "Recall"]:
+                    tb_writer.add_scalar(f"{item}/{phase}", computed_metrics[f"{phase}{item}"], epoch)
 
             # save the model weights in validation phase 
             if phase == 'val':

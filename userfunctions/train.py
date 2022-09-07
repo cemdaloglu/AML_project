@@ -120,7 +120,7 @@ if __name__ == '__main__':
     optimizer = Adam(params=model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
     # tensorboard example 
-    writer = SummaryWriter("runs/Satellite")
+    writer = SummaryWriter(f"runs/{args.name}")
 
     #train_model(model, dataloaders, use_cuda, optimizer, args.epochs,
     #    training_checkpoints_path + "current_best.pth", training_metrics_path, 
@@ -128,6 +128,6 @@ if __name__ == '__main__':
     
     train_model(model = model, dataloaders = dataloaders, use_cuda = use_cuda, optimizer = optimizer, num_epochs = args.epochs,
         checkpoint_path_model = training_checkpoints_path + "current_best.pth", 
-        loss_criterion = args.loss_criterion, trained_epochs = trained_epochs )
+        loss_criterion = args.loss_criterion, trained_epochs = trained_epochs, tb_writer = writer )
     
     
