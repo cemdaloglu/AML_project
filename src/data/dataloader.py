@@ -22,7 +22,7 @@ def get_dataloaders(train_dataset, val_dataset, dataloader_workers: int = 3, bat
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
         batch_size=batch_size,
-        drop_last=True,
+        drop_last=False,
         shuffle=True,
         **kwargs
     )

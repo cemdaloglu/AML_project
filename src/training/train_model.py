@@ -39,7 +39,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
             else:
                 model.eval()
 
-            epoch_loss = 0
+            running_loss = 0
 
             for dic in tqdm(dataloaders[phase], total=len(dataloaders[phase])):
                 inputs, labels = dic['image'], dic['mask']
@@ -64,7 +64,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                         optimizer.step()
 
                 # statistics
-                epoch_loss += loss / len(dataloaders[phase])
+                running_loss += loss * outputs.size(0)
                 preds_cpu = outputs.argmax(dim=1).cpu()
                 labels_cpu = labels.cpu()
                 if phase == "train":
@@ -79,6 +79,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                 computed_metrics = val_metrics.compute()
                 val_metrics.reset()
 
+            epoch_loss = running_loss / len(dataloaders[phase].dataset)
             computed_metrics[f"{phase}Loss"] = epoch_loss
 
             epoch_summary = f'Epoch {phase} : {epoch+1}'
