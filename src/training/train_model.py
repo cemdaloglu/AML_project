@@ -10,7 +10,7 @@ from src.helpers.visualize import plot_training
 
 
 def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_path_model, loss_criterion: str,
-                trained_epochs: int = 0, tb_writer = None):
+                trained_epochs: int = 0, freeze_epochs: int = 0, tb_writer = None):
     best_loss = 1e10
     total_acc = {key: [] for key in ['train', 'val']}
     total_loss = {key: [] for key in ['train', 'val']}
@@ -31,6 +31,15 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
     for epoch in range(trained_epochs, num_epochs):
         print(f'Epoch {epoch+1}/{num_epochs}')
         print('-' * 10)
+
+        # Unfreeze the frozen layers, if the chosen number of epochs has been reached
+        if (
+            freeze_epochs == epoch and
+            hasattr(model, "frozen") and
+            hasattr(model, "unfreeze_pretrained_params") and
+            model.frozen == True
+        ):
+            model.unfreeze_pretrained_params()
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:

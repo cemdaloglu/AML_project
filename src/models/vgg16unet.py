@@ -93,6 +93,8 @@ class VGG16UNet(nn.Module):
     ):
         super(VGG16UNet, self).__init__()
 
+        self.frozen = False
+
         # Downsampling Path (VGG16)
         self.down_conv1 = DownBlock(4, 64, "double")
         self.down_conv2 = DownBlock(64, 128, "double")
@@ -118,7 +120,9 @@ class VGG16UNet(nn.Module):
             if not Path(checkpoint_path).exists():
                 raise ValueError("ValueError: checkpoint_path does not exist.")
             else:
-                self._load_pretrained_params(checkpoint_path)
+                self.pretrained_params = self._load_pretrained_params(checkpoint_path)
+        else:
+            self.pretrained_params = []
 
     def _format_tf_varname(self, param, *level_indices):
         valid_params = {"bias", "kernel"}
@@ -192,6 +196,20 @@ class VGG16UNet(nn.Module):
 
             tf_param = tf_param.float()
             attrgetter(torch_layername)(self).data = tf_param
+
+        return list(param_mapping.values())
+
+    def freeze_pretrained_params(self):
+        print("Freezing pretrained parameters")
+        for torch_layername in self.pretrained_params:
+            attrgetter(torch_layername)(self).requires_grad = False
+        self.frozen = True
+
+    def unfreeze_pretrained_params(self):
+        print("Unfreezing pretrained parameters")
+        for torch_layername in self.pretrained_params:
+            attrgetter(torch_layername)(self).requires_grad = True
+        self.frozen = False
 
     def forward(self, x):
         x, skip1_out = self.down_conv1(x)

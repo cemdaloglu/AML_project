@@ -29,6 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-r', '--resume', help='Resume training from specified checkpoint', required=False)
     parser.add_argument('--pretrained_path', help='Path to pretrained weights for VGG16 UNet. Ignored for all other models', type=str, required=False)
+    parser.add_argument('--freeze_e', help='Freezes VGG16 UNet pretrained layers for e epochs. Ignored for all other models', default=0, type=int, required=False)
     parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
     parser.add_argument('-e', '--epochs', help='Number of epochs', default=100, required=True, type=int)
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
@@ -64,6 +65,7 @@ if __name__ == '__main__':
         model = VGG16UNet(out_classes=args.out_classes,
                           checkpoint_path=args.pretrained_path,
                           pretrained=True)
+        model.freeze_pretrained_params()
     elif model_choice == "deep_unet":
         model = UNet(out_classes = args.out_classes)
     else: 
@@ -76,6 +78,10 @@ if __name__ == '__main__':
         trained_epochs = all_metrics_so_far["Epoch"].max() + 1
         print(f"Continue training in epoch {trained_epochs}")
         model.load_state_dict(torch.load(training_checkpoints_path + "current_best.pth"))
+
+        if model_choice == "vgg_unet_pretrained" and trained_epochs >= args.freeze_e:
+            model.unfreeze_pretrained_params()
+
     else:
         print("Retrain model from scratch")
         shutil.rmtree(path_all_model_files_root, ignore_errors=True)
@@ -128,6 +134,6 @@ if __name__ == '__main__':
     
     train_model(model = model, dataloaders = dataloaders, use_cuda = use_cuda, optimizer = optimizer, num_epochs = args.epochs,
         checkpoint_path_model = training_checkpoints_path + "current_best.pth", 
-        loss_criterion = args.loss_criterion, trained_epochs = trained_epochs, tb_writer = writer )
+        loss_criterion = args.loss_criterion, trained_epochs = trained_epochs, freeze_epochs = args.freeze_e, tb_writer = writer )
     
     
