@@ -102,7 +102,6 @@ class VGG16UNet(nn.Module):
         self.down_conv4 = DownBlock(256, 512, "triple")
 
         # Bottleneck (Last VGG16 block without final downsampling)
-        self.dropout = nn.Dropout(0.25)
         self.multi_conv = TripleConv(512, 512)
 
         # Upsampling Path
@@ -216,7 +215,6 @@ class VGG16UNet(nn.Module):
         x, skip2_out = self.down_conv2(x)
         x, skip3_out = self.down_conv3(x)
         x, skip4_out = self.down_conv4(x)
-        x = self.dropout(x)
         x = self.multi_conv(x)
         x = self.up_conv4(x, skip4_out)
         x = self.up_conv3(x, skip3_out)
