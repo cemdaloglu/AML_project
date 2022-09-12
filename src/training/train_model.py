@@ -27,6 +27,12 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
     train_metrics = metrics.clone(prefix="train")
     val_metrics = metrics.clone(prefix="val")
 
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        optimizer,
+        milestones=[80,120], 
+        gamma=0.1
+    )
+
     # iterate over all epochs
     for epoch in range(trained_epochs, num_epochs):
         print(f'Epoch {epoch+1}/{num_epochs}')
@@ -70,6 +76,7 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                     # backward + optimize only if in training phase (no need for torch.no_grad in this training pass)
                     if phase == 'train':
                         loss.backward()
+                        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                         optimizer.step()
 
                 # statistics
@@ -111,6 +118,8 @@ def train_model(model, dataloaders, use_cuda, optimizer, num_epochs, checkpoint_
                     print(f"saving best model to {checkpoint_path_model}")
                     best_loss = epoch_loss
                     torch.save(model.state_dict(), checkpoint_path_model)
+
+        scheduler.step()
 
         # Display total time
         time_elapsed = time.time() - since
