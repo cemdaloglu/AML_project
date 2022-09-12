@@ -134,6 +134,6 @@ if __name__ == '__main__':
     
     train_model(model = model, dataloaders = dataloaders, use_cuda = use_cuda, optimizer = optimizer, num_epochs = args.epochs,
         checkpoint_path_model = training_checkpoints_path + "current_best.pth", 
-        loss_criterion = args.loss_criterion, trained_epochs = trained_epochs, freeze_epochs = args.freeze_e, tb_writer = writer )
+        loss_criterion = args.loss_criterion, trained_epochs = trained_epochs, freeze_epochs = args.freeze_e, tb_writer = writer, checkpoint_path_metrics = training_metrics_path )
     
     
