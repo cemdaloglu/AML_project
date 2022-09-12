@@ -8,5 +8,5 @@ def print_metrics(metrics, epoch_samples, phase):
     print("{}: {}".format(phase, ", ".join(outputs)))
 
 def create_metric_file(path):
-    metrics = pd.DataFrame(columns=['Epoch','Phase','loss'])
+    metrics = pd.DataFrame(columns=["Epoch","Phase","Loss", "Accuracy", "F1Score", "Precision", "Recall"])
     metrics.to_csv(path, index=False)
