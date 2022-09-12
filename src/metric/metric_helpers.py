@@ -17,11 +17,11 @@ def save_metrics(checkpoint_path_metrics, epoch, phase, loss, accuracy, f1Score,
     all_metrics = pd.read_csv(checkpoint_path_metrics + "metrics.csv")
     epoch_metrics = {'Epoch': epoch,
                      'Phase': phase,
-                     'Loss': loss,
-                     'Accuracy': accuracy,
-                     'F1Score': f1Score,
-                     'Precision': precision,
-                     'Recall': recall
+                     'Loss': loss.cpu(),
+                     'Accuracy': accuracy.cpu(),
+                     'F1Score': f1Score.cpu(),
+                     'Precision': precision.cpu(),
+                     'Recall': recall.cpu()
                      }
     all_metrics = all_metrics.append(epoch_metrics, ignore_index=True)
     all_metrics.to_csv(checkpoint_path_metrics + "metrics.csv", index=False)
