@@ -7,6 +7,8 @@ import tensorflow as tf
 from collections import OrderedDict
 from operator import attrgetter
 
+from copy import deepcopy
+
 
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -84,19 +86,42 @@ class UpBlock(nn.Module):
         return self.multi_conv(x)
 
 
+class IndicesSubnet(nn.Module):
+    def __init__(self, in_channels, hidden_channels, out_channels):
+        super(IndicesSubnet, self).__init__()
+        self.subnet = OrderedDict([
+            ("conv1", nn.Conv2d(in_channels, hidden_channels, 1, padding="valid")),
+            ("relu1", nn.ReLU()),
+            ("conv2", nn.Conv2d(hidden_channels, hidden_channels, 1, padding="valid")),
+            ("relu2", nn.ReLU()),
+            ("conv3", nn.Conv2d(hidden_channels, out_channels, 1, padding="valid")),
+            ("relu3", nn.ReLU())
+        ])
+
+    def forward(self, x):
+        indices = self.subnet(x)
+        x = torch.cat([x, indices], dim=1)
+        return x
+
 class VGG16UNet(nn.Module):
     def __init__(
         self,
         out_classes=6,
         pretrained=False,
-        checkpoint_path="checkpoints/checkpoint_VGG16"
+        checkpoint_path="checkpoints/checkpoint_VGG16",
+        n_indices=0
     ):
         super(VGG16UNet, self).__init__()
 
         self.frozen = False
+        self.n_indices = n_indices
+
+        # Subnetwork that mixes input bands into image indices
+        if self.n_indices > 0:
+            self.indices_subnet = IndicesSubnet(4, 128, self.n_indices)
 
         # Downsampling Path (VGG16)
-        self.down_conv1 = DownBlock(4, 64, "double")
+        self.down_conv1 = DownBlock(4 + self.n_indices, 64, "double")
         self.down_conv2 = DownBlock(64, 128, "double")
         self.down_conv3 = DownBlock(128, 256, "triple")
         self.down_conv4 = DownBlock(256, 512, "triple")
@@ -183,6 +208,13 @@ class VGG16UNet(nn.Module):
             if len(tf_param.shape) == 4:
                 tf_param = tf_param.transpose(3, 2, 0, 1)
 
+            # In case of the prepended subnetwork, we only have weights for a subset
+            # of kernels. For the rest, we keep the initialized values.
+            if self.n_indices > 0 and tf_varname == self._format_tf_varname('kernel', 0, 0):
+                existing_params = deepcopy(attrgetter(torch_layername)(self).detach().numpy())
+                existing_params[:, 0:4, :, :] = tf_param
+                tf_param = existing_params
+
             tf_param = torch.from_numpy(tf_param)
             torch_param = attrgetter(torch_layername)(self)
 
@@ -211,6 +243,8 @@ class VGG16UNet(nn.Module):
         self.frozen = False
 
     def forward(self, x):
+        if self.n_indices > 0:
+            x = self.indices_subnet(x)
         x, skip1_out = self.down_conv1(x)
         x, skip2_out = self.down_conv2(x)
         x, skip3_out = self.down_conv3(x)

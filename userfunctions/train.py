@@ -30,6 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--resume', help='Resume training from specified checkpoint', required=False)
     parser.add_argument('--pretrained_path', help='Path to pretrained weights for VGG16 UNet. Ignored for all other models', type=str, required=False)
     parser.add_argument('--freeze_e', help='Freezes VGG16 UNet pretrained layers for e epochs. Ignored for all other models', default=0, type=int, required=False)
+    parser.add_argument('--n_indices', help='Number of trainable image indices of prepended subnetwork. Currenty available just for VGG16 UNet.', default=0, type=int, required=False)
     parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
     parser.add_argument('-e', '--epochs', help='Number of epochs', default=100, required=True, type=int)
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
@@ -60,11 +61,14 @@ if __name__ == '__main__':
     # TODO adapt model depending on data (just dummy atm)
     model_choice = args.model
     if model_choice == "vgg_unet":
-        model = VGG16UNet(out_classes=args.out_classes, pretrained=False)
+        model = VGG16UNet(out_classes=args.out_classes,
+                          pretrained=False,
+                          n_indices=args.n_indices)
     elif model_choice == "vgg_unet_pretrained":
         model = VGG16UNet(out_classes=args.out_classes,
                           checkpoint_path=args.pretrained_path,
-                          pretrained=True)
+                          pretrained=True,
+                          n_indices=args.n_indices)
         model.freeze_pretrained_params()
     elif model_choice == "deep_unet":
         model = UNet(out_classes = args.out_classes)
