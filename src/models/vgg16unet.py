@@ -89,14 +89,16 @@ class UpBlock(nn.Module):
 class IndicesSubnet(nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels):
         super(IndicesSubnet, self).__init__()
-        self.subnet = OrderedDict([
-            ("conv1", nn.Conv2d(in_channels, hidden_channels, 1, padding="valid")),
-            ("relu1", nn.ReLU()),
-            ("conv2", nn.Conv2d(hidden_channels, hidden_channels, 1, padding="valid")),
-            ("relu2", nn.ReLU()),
-            ("conv3", nn.Conv2d(hidden_channels, out_channels, 1, padding="valid")),
-            ("relu3", nn.ReLU())
-        ])
+        self.subnet = nn.Sequential(
+            OrderedDict([
+                ("conv1", nn.Conv2d(in_channels, hidden_channels, 1, padding="valid")),
+                ("relu1", nn.ReLU()),
+                ("conv2", nn.Conv2d(hidden_channels, hidden_channels, 1, padding="valid")),
+                ("relu2", nn.ReLU()),
+                ("conv3", nn.Conv2d(hidden_channels, out_channels, 1, padding="valid")),
+                ("relu3", nn.ReLU())
+            ])
+        )
 
     def forward(self, x):
         indices = self.subnet(x)
