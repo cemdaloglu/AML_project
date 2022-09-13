@@ -50,12 +50,13 @@ class UNet(nn.Module):
         self.down_conv1 = DownBlock(4, 64)
         self.down_conv2 = DownBlock(64, 128)
         self.down_conv3 = DownBlock(128, 256)
-        self.down_conv4 = DownBlock(256, 512)
+        #self.down_conv4 = DownBlock(256, 512)
         # Bottleneck
         self.dropout = nn.Dropout(0.25)
-        self.double_conv = DoubleConv(512, 1024)
+        #self.double_conv = DoubleConv(512, 1024)
+        self.double_conv = DoubleConv(256, 512)
         # Upsampling Path
-        self.up_conv4 = UpBlock(512 + 1024, 512)
+        #self.up_conv4 = UpBlock(512 + 1024, 512)
         self.up_conv3 = UpBlock(256 + 512, 256)
         self.up_conv2 = UpBlock(128 + 256, 128)
         self.up_conv1 = UpBlock(128 + 64, 64)
