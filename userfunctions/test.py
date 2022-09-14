@@ -23,8 +23,8 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', help='Model name', required=True)
     parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="dat/patches", type=str)
     parser.add_argument('-p', '--path_results', help='Path for storing testing results', required=False, default="src/results")
-    parser.add_argument('-b', '--batch_size', help='Test Batch Size', default=8, type=int)
-    parser.add_argument('-c', '--n_classes', help='Number of output classes )', type=int, required=True, default = 4)
+    parser.add_argument('-b', '--batch_size', help='Test Batch Size', default=32, type=int)
+    parser.add_argument('-c', '--n_classes', help='Number of output classes )', type=int, required=True, default = 5)
     parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int, required=False)
     
     args = parser.parse_args()
@@ -78,6 +78,5 @@ if __name__ == '__main__':
 
     test_batch_size = args.batch_size
 
-    # TODO: PASS METRICS FILE!!! 
-    test(model, test_loader, use_cuda, calc_loss)
+    test(model, test_loader, use_cuda, calc_loss, test_metrics_path)
  

@@ -11,7 +11,7 @@ from ..metric.loss import calc_loss
 # helper function to get the root path
 from pathlib import Path
 from ..helpers.visualize import plot_test
-from torchmetrics import Accuracy, F1Score, Precision, Recall, MetricCollection
+from torchmetrics import Accuracy, F1Score, Precision, Recall, MetricCollection, ConfusionMatrix
 from ..metric.metric_helpers import save_metrics
 
 
@@ -20,7 +20,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent
 
 
-def test(model, test_loader, use_cuda: bool, loss_criterion=None, n_classes = 5, checkpoint_path_metrics = None):
+def test(model, test_loader, use_cuda: bool, loss_criterion=None, checkpoint_path_metrics = None):
     """
     Compute test metrics on test data set 
 
@@ -47,7 +47,8 @@ def test(model, test_loader, use_cuda: bool, loss_criterion=None, n_classes = 5,
             Accuracy(ignore_index=0, mdmc_average="global"),
             F1Score(ignore_index=0, mdmc_average="global"),
             Precision(ignore_index=0, mdmc_average="global"),
-            Recall(ignore_index=0, mdmc_average="global")
+            Recall(ignore_index=0, mdmc_average="global"),
+            ConfusionMatrix()
         ])
 
         test_metrics = metrics.clone(prefix="test")
