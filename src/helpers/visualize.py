@@ -82,8 +82,8 @@ def plot_test(metrics):
     df_cm = pd.DataFrame(metrics["ConfusionMatrix"].numpy(), index=classes,
                          columns=classes)
     #plt.figure(figsize=(10, 7))
-
+    sn.heatmap(df_cm, annot=True, fmt="g")
     #plt.show()
-    swarm_plot = sns.swarmplot(sn.heatmap(df_cm, annot=True, fmt="g"))
+    swarm_plot = sns.swarmplot()
     fig = swarm_plot.get_figure()
-    fig.savefig("computed_metrics.png")
+    fig.savefig("ConfusionMatrix.png")
