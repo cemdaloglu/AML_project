@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--epochs', help='Number of epochs', default=100, required=True, type=int)
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
     parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int)
-    parser.add_argument('--out_classes', help='Hpw many output classes there are, default 6 (0...5). For further information checck report', default=6, type=int)
+    parser.add_argument('--out_classes', help='How many output classes there are, default 6 (0...5). For further information checck report', default=6, type=int)
     parser.add_argument('--dataloader_workers', help='Num of workers for dataloader', default=3, type=int)
     parser.add_argument('-lr', '--learning_rate', help='Which learning rate to use for the optimizer', default=.01, type=float)
     parser.add_argument('-wd', '--weight_decay', help='Which weight decay to use for the optimizer', default=.001, type=float)
