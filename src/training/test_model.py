@@ -48,7 +48,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion=None, checkpoint_pat
             F1Score(ignore_index=0, mdmc_average="global"),
             Precision(ignore_index=0, mdmc_average="global"),
             Recall(ignore_index=0, mdmc_average="global"),
-            ConfusionMatrix()
+            #ConfusionMatrix()
         ])
 
         test_metrics = metrics.clone(prefix="test")
