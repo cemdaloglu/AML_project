@@ -23,6 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', help='Model name', required=True)
     parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="dat/patches", type=str)
     parser.add_argument('-p', '--path_results', help='Path for storing testing results', required=False, default="src/results")
+    parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-b', '--batch_size', help='Test Batch Size', default=32, type=int)
     parser.add_argument('-c', '--n_classes', help='Number of output classes )', type=int, required=False, default = 5)
     parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int, required=False)
