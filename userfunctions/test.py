@@ -3,35 +3,37 @@ import os
 import shutil
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-
-import argparse
-import os
-import shutil
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import torch
-from torch.utils.data import random_split
-
-from src.metric.loss import calc_loss
 from src.models.unet import UNet
+from src.models.vgg16unet import VGG16UNet
 from src.training.test_model import test
 from src.data.citydataclass import CityData
+from src.data.dataloader import get_test_dataloaders
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--name', help='Model name', required=True)
-    parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="dat/patches", type=str)
-    parser.add_argument('-p', '--path_results', help='Path for storing testing results', required=False, default="src/results")
-    parser.add_argument('-b', '--batch_size', help='Test Batch Size', default=8, type=int)
-    parser.add_argument('-c', '--n_classes', help='Number of output classes )', type=int, required=True, default = 4)
-    parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int, required=False)
+    parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="patches", type=str)
+    parser.add_argument('-p', '--result_path', help='Path for storing testing results', required=False, default="src/results")
+    parser.add_argument('-m', '--model', help='Which model you are testing, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
+    parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
+    parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
+    parser.add_argument('--out_classes', help='How many output classes there are, default 6 (0...5). For further information check report', default=6, type=int)
+    parser.add_argument('--dataloader_workers', help='Num of workers for dataloader', default=3, type=int)
     
+
     args = parser.parse_args()
 
-    path_all_model_files_root = f"{args.path_results}/{args.name}/"
+    use_cuda = torch.cuda.is_available()
+    device = torch.device('cuda' if use_cuda else 'cpu')
+    print("Using cuda?", use_cuda)
+
+    path_all_model_files_root = f"{args.result_path}/{args.name}/"
     test_metrics_path = path_all_model_files_root + "test_metrics/"
-    evaluation_images_path = path_all_model_files_root + "evaluation_images/" # TODO change
+    evaluation_images_path = path_all_model_files_root + "evaluation_images/"
     model_checkpoint_path = path_all_model_files_root + "training_checkpoints/"
 
     # delete test_metrics_path/ evaluation_images_path and all files and subdirectories below it. Create new. 
@@ -40,44 +42,29 @@ if __name__ == '__main__':
     os.makedirs(test_metrics_path)
     os.makedirs(evaluation_images_path)
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device('cuda' if use_cuda else 'cpu')
-
-    kwargs = {'num_workers': 3, 'pin_memory': True} if use_cuda else {}
-
-    test_dataset = CityData(os.path.join(args.train_test_path, 'test')) 
-
-    test_loader = torch.utils.data.DataLoader(
-        test_dataset, 
-        batch_size=args.batch_size, shuffle=True,
-        drop_last=True, **kwargs)
-
-    dataloaders = {
-        "test_loader": test_loader, 
-    }
-
-    # TODO adapt model depending on data (just dummy atm)
     model_choice = args.model
-    if model_choice == "vgg_unet":
-        model = UNet(in_channels = args.in_channel)
+    if model_choice == "vgg_unet" or model_choice == "vgg_unet_pretrained":
+        model = VGG16UNet(out_classes=args.out_classes)
     elif model_choice == "deep_unet":
-        model = UNet(in_channels = args.in_channel)
+        model = UNet(out_classes=args.out_classes)
     else: 
-        model = UNet(in_channels = args.in_channel)
+        model = UNet(out_classes=args.out_classes)
 
-    model = model.to(device)
-
-    print("Test model on test set")
+    model = model.to(device, dtype=torch.float)
 
     if use_cuda:
         model.load_state_dict(torch.load(model_checkpoint_path + "current_best.pth"))
     else: 
         model.load_state_dict(torch.load(model_checkpoint_path + "current_best.pth", map_location=torch.device('cpu')))
-        
-    model = model.to(device)
 
-    test_batch_size = args.batch_size
+    # Create dataset for training and validation and get dataloaders
+    test_dataset = CityData(os.path.join(args.train_test_path, 'test'))
+    test_loader = get_test_dataloaders(
+        test_dataset,
+        args.dataloader_workers,
+        args.batch_size
+    )
 
-    # TODO: PASS METRICS FILE!!! 
-    test(model, test_loader, use_cuda, calc_loss)
- 
+    print("Testing model on test set")
+
+    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes)
