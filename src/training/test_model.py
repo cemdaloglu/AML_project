@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, accuracy_score
-from ..metric.loss import calc_loss
+from ..metric.loss import calc_loss, init_loss
 # helper function to get the root path
 from pathlib import Path
 from ..helpers.visualize import plot_test
@@ -37,6 +37,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion=None, checkpoint_pat
     all_labels = []
     test_losses = []
     since = time.time()
+    loss_fn = init_loss(loss_criterion, use_cuda)
 
     total_acc = {key: [] for key in ['test']}
     total_loss = {key: [] for key in ['test']}
@@ -68,7 +69,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion=None, checkpoint_pat
             prediction = model(images)  # torch.Size([batch_size, n_classes, h, w])
 
             # compute and save loss
-            test_loss = calc_loss(labels.long(), prediction, criterion=loss_criterion)
+            test_loss = calc_loss(labels, prediction, loss_fn)
             #test_losses.extend(test_loss.cpu().numpy().reshape(-1))
 
             # statistics
