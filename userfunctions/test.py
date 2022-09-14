@@ -16,6 +16,7 @@ from src.metric.loss import calc_loss
 from src.models.unet import UNet
 from src.training.test_model import test
 from src.data.citydataclass import CityData
+from src.models.vgg16unet import VGG16UNet
 
 
 if __name__ == '__main__':
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--model', help='Which model to use, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-b', '--batch_size', help='Test Batch Size', default=32, type=int)
     parser.add_argument('-c', '--n_classes', help='Number of output classes )', type=int, required=False, default = 5)
-    parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int, required=False)
+    parser.add_argument('--out_classes', help='How many output classes there are, default 6 (0...5). For further information checck report', default=6, type=int)
     parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ',
                         default="wCEL", required=False)
     
@@ -62,13 +63,18 @@ if __name__ == '__main__':
     # TODO adapt model depending on data (just dummy atm)
     model_choice = args.model
     if model_choice == "vgg_unet":
-        model = UNet(in_channels = args.in_channels)
+        model = VGG16UNet(out_classes=args.out_classes, pretrained=False)
+    elif model_choice == "vgg_unet_pretrained":
+        model = VGG16UNet(out_classes=args.out_classes,
+                          checkpoint_path=args.pretrained_path,
+                          pretrained=True)
+        model.freeze_pretrained_params()
     elif model_choice == "deep_unet":
-        model = UNet(in_channels = args.in_channels)
-    else: 
-        model = UNet(in_channels = args.in_channels)
+        model = UNet(out_classes=args.out_classes)
+    else:
+        model = UNet(out_classes=args.out_classes)
 
-    model = model.to(device)
+    model = model.to(device, dtype=torch.float)
 
     print("Test model on test set")
 
