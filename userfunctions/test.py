@@ -26,6 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--batch_size', help='Test Batch Size', default=32, type=int)
     parser.add_argument('-c', '--n_classes', help='Number of output classes )', type=int, required=True, default = 5)
     parser.add_argument('--in_channels', help='in_channels: Default: rgbi 4 channel input', default=4, type=int, required=False)
+    parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ',
+                        default="wCEL", required=False)
     
     args = parser.parse_args()
 
@@ -78,5 +80,5 @@ if __name__ == '__main__':
 
     test_batch_size = args.batch_size
 
-    test(model, test_loader, use_cuda, calc_loss, test_metrics_path)
+    test(model=model, test_loader=test_loader, use_cuda=use_cuda, loss_criterion = args.loss_criterion, checkpoint_path_metrics=test_metrics_path)
  
