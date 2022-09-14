@@ -62,11 +62,11 @@ if __name__ == '__main__':
     # TODO adapt model depending on data (just dummy atm)
     model_choice = args.model
     if model_choice == "vgg_unet":
-        model = UNet(in_channels = args.in_channel)
+        model = UNet(in_channels = args.in_channels)
     elif model_choice == "deep_unet":
-        model = UNet(in_channels = args.in_channel)
+        model = UNet(in_channels = args.in_channels)
     else: 
-        model = UNet(in_channels = args.in_channel)
+        model = UNet(in_channels = args.in_channels)
 
     model = model.to(device)
 
