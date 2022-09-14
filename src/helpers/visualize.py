@@ -62,17 +62,24 @@ def plot_training(total_loss, total_acc):
     plt.show()
 
 
-def plot_test(test_losses, acc, pre, recall, f1, conf_matrix, num_correct, num_pixels):
+def plot_test(metrics):
+    classes = ["unknown", "city", "agriculture", "natural", "wetlands", "water"]
+
     # print metrics
-    print("Mean Loss:", np.mean(test_losses), "\nMean Acc:", acc, "\nMean Macro Precision:", pre,
-          "\nMean Macro Recall:", recall,
-          "\nMean Macro F1 Score:", f1)
+    global_summary = "Global:"
+    for m in ["GlobalAccuracy", "GlobalF1Score", "GlobalPrecision", "GlobalRecall"]:
+        global_summary = f"{global_summary}\n\t{m} : {metrics[m]:.6f}"
+
+    per_class_summary = f"Per Class ({classes}):"
+    for m in ["PerClassAccuracy", "PerClassF1Score", "PerClassPrecision", "PerClassRecall"]:
+        per_class_summary = f"{per_class_summary}\n\t{m} : {metrics[m]}"
+
+    print(global_summary)
+    print(per_class_summary)
 
     # plot confusion matrix
-    df_cm = pd.DataFrame(conf_matrix, index=["unknown", "agriculture", "forest", "city", "wetlands", "water"],
-                         columns=["unknown", "agriculture", "forest", "city", "wetlands", "water"])
+    df_cm = pd.DataFrame(metrics["ConfusionMatrix"], index=classes,
+                         columns=classes)
     plt.figure(figsize=(10, 7))
-    sn.heatmap(df_cm, annot=True)
-
-    test_accuracy = (num_correct / num_pixels * 100).cpu().numpy()
-    print(f"Got {num_correct}/{num_pixels} with acc {test_accuracy}")
+    sn.heatmap(df_cm, annot=True, fmt="g")
+    plt.show()
