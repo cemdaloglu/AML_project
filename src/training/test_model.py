@@ -63,7 +63,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion=None, checkpoint_pat
 
             if use_cuda:
                 images = images.to('cuda', dtype=torch.float)
-                labels = labels.to('cuda', dtype=torch.float)
+                labels = labels.to('cuda', dtype=torch.long)
 
             # run network
             prediction = model(images)  # torch.Size([batch_size, n_classes, h, w])
