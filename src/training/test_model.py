@@ -7,7 +7,6 @@ from torchmetrics import Accuracy, F1Score, Precision, Recall, MetricCollection,
 # helper function to get the root path
 from pathlib import Path
 from ..helpers.visualize import plot_test
-import seaborn as sns
 
 
 def get_project_root() -> Path:
@@ -73,7 +72,4 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
         test_loss = running_loss / len(test_loader.dataset)
         computed_metrics[f"Loss"] = test_loss
 
-    # plot_test(computed_metrics)
-    swarm_plot = sns.swarmplot(computed_metrics)
-    fig = swarm_plot.get_figure()
-    fig.savefig("computed_metrics.png")
+    plot_test(computed_metrics)

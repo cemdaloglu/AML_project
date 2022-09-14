@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sn
 import pandas as pd
+import seaborn as sns
 
 
 def plot_image_groundtruth_prediction(image, groundtruth, prediction, loss = None):
@@ -80,6 +81,9 @@ def plot_test(metrics):
     # plot confusion matrix
     df_cm = pd.DataFrame(metrics["ConfusionMatrix"].numpy(), index=classes,
                          columns=classes)
-    plt.figure(figsize=(10, 7))
-    sn.heatmap(df_cm, annot=True, fmt="g")
-    plt.show()
+    #plt.figure(figsize=(10, 7))
+
+    #plt.show()
+    swarm_plot = sns.swarmplot(sn.heatmap(df_cm, annot=True, fmt="g"))
+    fig = swarm_plot.get_figure()
+    fig.savefig("computed_metrics.png")
