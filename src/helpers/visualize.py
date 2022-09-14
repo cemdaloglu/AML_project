@@ -78,7 +78,7 @@ def plot_test(metrics):
     print(per_class_summary)
 
     # plot confusion matrix
-    df_cm = pd.DataFrame(metrics["ConfusionMatrix"], index=classes,
+    df_cm = pd.DataFrame(metrics["ConfusionMatrix"].numpy(), index=classes,
                          columns=classes)
     plt.figure(figsize=(10, 7))
     sn.heatmap(df_cm, annot=True, fmt="g")
