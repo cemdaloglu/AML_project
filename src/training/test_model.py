@@ -72,8 +72,10 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             # TODO: Store predicted mask for visualization?
             #...
             for (ind, city_name) in zip(preds_cpu.shape, city_names):
-                pred = preds_cpu[ind]
+                print("ind, city_name", ind, city_name)
                 print("pred_shape", pred.shape)
+                pred = preds_cpu[ind]
+                
                 pred_name = city_name.split(spl_word, 1)[1]
                 print("pred_name", pred_name)
                 print(pred_path+"/pred_"+ pred_name)
