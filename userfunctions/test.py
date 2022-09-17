@@ -67,4 +67,4 @@ if __name__ == '__main__':
 
     print("Testing model on test set")
 
-    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes)
+    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes, evaluation_images_path)

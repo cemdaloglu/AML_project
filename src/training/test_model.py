@@ -15,7 +15,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent
 
 
-def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int):
+def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int, pred_path: str):
     """
     Compute test metrics on test data set 
 
@@ -31,11 +31,6 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
     model.eval()
     loss_fn = init_loss(loss_criterion, use_cuda)
 
-    # Create prediction folder
-    pred_path = os.path.join('results', 'predictions')
-       
-    if not os.path.exists(pred_path):
-        os.makedirs(pred_path)
     spl_word = 'image'
 
     metrics = MetricCollection({
