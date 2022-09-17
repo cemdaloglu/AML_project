@@ -71,7 +71,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
 
             # TODO: Store predicted mask for visualization?
             #...
-            for (ind, city_name) in zip(preds_cpu.shape, city_names):
+            for (ind, city_name) in zip(range(preds_cpu.shape[0]), city_names):
                 print("ind, city_name", ind, city_name)
                 print("pred_shape", pred.shape)
                 pred = preds_cpu[ind]
