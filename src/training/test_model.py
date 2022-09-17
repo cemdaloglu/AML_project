@@ -67,6 +67,8 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             running_loss += loss * outputs.size(0)
             metrics.update(preds_cpu, labels_cpu)
 
+            print("preds_cpu.shape", preds_cpu.shape)
+
             # TODO: Store predicted mask for visualization?
             #...
             for (ind, city_name) in zip(preds_cpu.shape, city_names):
