@@ -1,5 +1,6 @@
 """ Module for model evaluation """
-
+import os
+import numpy as np
 import torch
 from tqdm import tqdm
 from ..metric.loss import calc_loss, init_loss
@@ -30,6 +31,13 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
     model.eval()
     loss_fn = init_loss(loss_criterion, use_cuda)
 
+    # Create prediction folder
+    pred_path = os.path.join('results', 'predictions')
+       
+    if not os.path.exists(pred_path):
+        os.makedirs(pred_path)
+    spl_word = 'image'
+
     metrics = MetricCollection({
         "GlobalAccuracy": Accuracy(ignore_index=0, mdmc_average="global"),
         "PerClassAccuracy": Accuracy(ignore_index=0, mdmc_average="global",
@@ -48,7 +56,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
 
     with torch.no_grad():
         for dic in tqdm(test_loader, total=len(test_loader)):
-            inputs, labels = dic['image'], dic['mask']
+            inputs, labels, city_names = dic['image'], dic['mask'], dic['imagename']
 
             if use_cuda:
                 inputs = inputs.to('cuda', dtype=torch.float)  # [batch_size, in_channels, H, W]
@@ -65,7 +73,14 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             metrics.update(preds_cpu, labels_cpu)
 
             # TODO: Store predicted mask for visualization?
-            ...
+            #...
+            for (ind, city_name) in zip(preds_cpu.shape, city_names):
+                pred = preds_cpu[ind]
+                print("pred_shape", pred.shape)
+                pred_name = city_name.split(spl_word, 1)[1]
+                print("pred_name", pred_name)
+                print(pred_path+"/pred_"+ pred_name)
+                #np.save(pred_path+"/pred_"+ pred_name, pred)
 
         computed_metrics = metrics.compute()
 
