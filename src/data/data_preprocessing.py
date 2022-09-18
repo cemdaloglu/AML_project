@@ -3,6 +3,8 @@ import glob
 from osgeo import gdal
 import os
 import re
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 
 
@@ -61,7 +63,7 @@ def read_and_return_image_and_mask_gdal(image_path: str, mask_path: str, thresh:
 
 def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int, 
                           padding: bool, interseks_hor: int, interseks_ver: int, 
-                          path_output:str, thresh: int = 3558, use_infra: bool = True):
+                          path_output:str, thresh: int = 6000, use_infra: bool = True):
     """
     Reads in images and corresponding masks from path. rgb image is extracted and normalizes
     
@@ -87,8 +89,6 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
     else: 
         parent = os.getcwd()
     
-    #image_stack = glob.glob(path+'images/*2.tif')
-    #mask_stack = glob.glob(path+'annotations/*.tif')
     image_path = os.path.join(path, 'images/')
     mask_path = os.path.join(path,'annotations/')
 
@@ -118,12 +118,14 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
         # Create folders
         images_path = os.path.join(parent, 'patches', stage, 'images')
         masks_path = os.path.join(parent, 'patches', stage, 'masks')
-        print(images_path)
+        originals_path = os.path.join(parent, 'img_groundtruth_pred')
 
         if not os.path.exists(images_path):
             os.makedirs(images_path)
         if not os.path.exists(masks_path):
             os.makedirs(masks_path)
+        if not os.path.exists(originals_path):
+            os.makedirs(originals_path)
 
 
         # Loop over all cities
@@ -132,11 +134,20 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
             print(f"Reading file {ind + 1}/{len(image_stack)} : {city_path}")
             image_data, mask_data = read_and_return_image_and_mask_gdal(city_path, city_mask_path, thresh, use_infra)
 
+            if stage == 'test':
+                np.save(originals_path+"/image_"+ str(ind) +".npy", image_data)
+                np.save(originals_path+"/groundtruth_"+str(ind)+".npy", mask_data)
+
+                # set padding to True for test stage
+                padding = True
+
+
             w, h = np.shape(image_data)[0], np.shape(image_data)[1]
             h_div = int(np.ceil(h / (h_size - interseks_ver)))
             w_div = int(np.ceil(w / (w_size - interseks_hor)))
 
             print("Creating patches...")
+
 
             if padding:
                 rows_missing = w_size - w % (w_size - interseks_hor)

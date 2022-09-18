@@ -1,9 +1,32 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sn
+#import seaborn as sn
 import pandas as pd
-import seaborn as sns
+
+
+
+def plot_groundtruth_prediction(city_title:str, groundtruth_path:str, prediction_path:str, save_path:str):
+
+    groundtruth = np.load(groundtruth_path)
+    prediction = np.load(prediction_path)
+
+    f, ax = plt.subplots(1, 2, figsize=(20, 10))
+    f.suptitle(city_title, fontsize=16)
+
+    ax[0].set_title("Labels")
+    ax[0].imshow(groundtruth)
+    ax[0].set_axis_off()
+    ax[1].set_title("Prediction")
+    ax[1].imshow(prediction)
+    ax[1].set_axis_off()
+
+    f.tight_layout()
+
+    plt.savefig(save_path + "/groundtruth_pred_" + city_title + ".png")
+
+    return f
+
 
 
 def plot_image_groundtruth_prediction(image, groundtruth, prediction, loss = None):
