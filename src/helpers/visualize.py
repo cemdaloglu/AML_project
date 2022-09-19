@@ -111,4 +111,4 @@ def plot_test(metrics, save_path = None):
 
     if save_path is not None:
         print("saving confusion matrix to: ", save_path)
-        plt.savefig(os.path.join(save_path,"ConfusionMatrix.png"))
+        plt.savefig(os.path.join(save_path,"ConfusionMatrix.png"), bbox_inches='tight')
