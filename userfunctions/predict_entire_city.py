@@ -24,6 +24,9 @@ if __name__ == '__main__':
     save_path = {args.save_path}
     ''' )
 
+    if not os.path.exists(args.save_path):
+        os.makedirs(args.save_path)
+
     put_patches_together(args.results_folder, args.model_name, args.save_path)
     plot_groundtruth_prediction("Frankfurt", args.save_path+"/groundtruth_0.npy", args.save_path+f"/{args.model_name}/pred_restored_0.npy", args.save_path+f"/{args.model_name}")
     plot_groundtruth_prediction("Heidelberg", args.save_path+"/groundtruth_1.npy", args.save_path+f"/{args.model_name}/pred_restored_1.npy", args.save_path+f"/{args.model_name}")
