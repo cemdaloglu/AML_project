@@ -76,7 +76,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
                 pred_name = city_name.split(spl_word, 1)[1]
                 hf.create_dataset("pred"+pred_name, data=pred)
                 #np.save(pred_path+"pred"+ pred_name, pred)
-            hf.close()
+        hf.close()
 
         computed_metrics = metrics.compute()
 

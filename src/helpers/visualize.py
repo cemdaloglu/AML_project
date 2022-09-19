@@ -106,6 +106,7 @@ def plot_test(metrics, save_path = None):
     df_cm = pd.DataFrame(metrics["ConfusionMatrix"].numpy(), index=classes,
                          columns=classes)
     plt.figure(figsize=(12, 12))
+    sn.set(font_scale=1.4)
     sn.heatmap(df_cm, annot=True, fmt='.3g', annot_kws={'fontsize': 14})
 
     if save_path is not None:
