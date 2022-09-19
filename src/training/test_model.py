@@ -69,6 +69,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             metrics.update(preds_cpu, labels_cpu)
 
             # Store predicted mask for visualization?
+            print(pred_path+'predicted_patches.h5')
             hf = h5py.File(pred_path+'predicted_patches.h5', 'w')
             for (ind, city_name) in zip(range(preds_cpu.shape[0]), city_names):
                 pred = preds_cpu[ind]
