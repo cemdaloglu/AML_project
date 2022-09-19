@@ -4,7 +4,7 @@ import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 
-from src.data.data_preprocessing import  cropped_set_interseks_img_mask
+from src.data.data_preprocessing import  cropped_set_intersect_img_mask
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     use_infra = {args.use_infra}
     ''' )
 
-    cropped_set_interseks_img_mask(args.path,
+    cropped_set_intersect_img_mask(args.path,
         args.hpatchsize, args.wpatchsize,
         args.padding, args.horizontal_intersection, args.vertical_intersection, 
         args.path_output, args.thresh, args.use_infra)

@@ -61,7 +61,7 @@ def read_and_return_image_and_mask_gdal(image_path: str, mask_path: str, thresh:
     return rgbi_img, mask
 
 
-def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int, 
+def cropped_set_intersect_img_mask(path: str, h_size: int, w_size: int, 
                           padding: bool, interseks_hor: int, interseks_ver: int, 
                           path_output:str, thresh: int = 6000, use_infra: bool = True):
     """
@@ -140,6 +140,7 @@ def cropped_set_interseks_img_mask(path: str, h_size: int, w_size: int,
 
                 # set padding to True for test stage
                 padding = True
+                
 
 
             w, h = np.shape(image_data)[0], np.shape(image_data)[1]
