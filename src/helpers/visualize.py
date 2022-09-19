@@ -104,9 +104,9 @@ def plot_test(metrics, save_path = None):
 
     # plot confusion matrix
     df_cm = pd.DataFrame(metrics["ConfusionMatrix"].numpy(), index=classes,
-                         columns=classes, fmt='.3g')
+                         columns=classes)
     plt.figure(figsize=(12, 12))
-    sn.heatmap(df_cm, annot=True, fmt="g")
+    sn.heatmap(df_cm, annot=True, fmt='.3g')
 
     if save_path is not None:
         print("saving confusion matrix to: ", save_path)
