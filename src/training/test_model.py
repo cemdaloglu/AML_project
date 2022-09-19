@@ -3,6 +3,7 @@ import os
 import numpy as np
 import torch
 from tqdm import tqdm
+import h5py
 from ..metric.loss import calc_loss, init_loss
 from torchmetrics import Accuracy, F1Score, Precision, Recall, MetricCollection, ConfusionMatrix
 # helper function to get the root path
@@ -68,10 +69,13 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             metrics.update(preds_cpu, labels_cpu)
 
             # Store predicted mask for visualization?
+            hf = h5py.File(pred_path+'predicted_patches.h5', 'w')
             for (ind, city_name) in zip(range(preds_cpu.shape[0]), city_names):
                 pred = preds_cpu[ind]
                 pred_name = city_name.split(spl_word, 1)[1]
-                np.save(pred_path+"pred"+ pred_name, pred)
+                hf.create_dataset("pred"+pred_name, data=pred)
+                #np.save(pred_path+"pred"+ pred_name, pred)
+            hf.close()
 
         computed_metrics = metrics.compute()
 
