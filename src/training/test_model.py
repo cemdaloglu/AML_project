@@ -15,7 +15,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent
 
 
-def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int, pred_path: str):
+def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int, path_all_model_files_root:str, pred_path: str):
     """
     Compute test metrics on test data set 
 
@@ -85,4 +85,4 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
         test_loss = running_loss / len(test_loader.dataset)
         computed_metrics[f"Loss"] = test_loss
 
-    plot_test(computed_metrics, save_path = '../'+pred_path)
+    plot_test(computed_metrics, save_path = path_all_model_files_root)
