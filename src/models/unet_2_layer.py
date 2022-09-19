@@ -43,9 +43,9 @@ class UpBlock(nn.Module):
         return self.double_conv(x)
 
 
-class UNet(nn.Module):
+class Unet(nn.Module):
     def __init__(self, out_classes=5):
-        super(UNet, self).__init__()
+        super(Unet, self).__init__()
         # Downsampling Path
         self.down_conv1 = DownBlock(4, 64)
         self.down_conv2 = DownBlock(64, 128)
