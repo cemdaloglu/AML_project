@@ -24,7 +24,7 @@ def plot_groundtruth_prediction(city_title:str, groundtruth_path:str, prediction
 
     f.tight_layout()
 
-    plt.savefig(save_path + "/groundtruth_pred_" + city_title + ".png")
+    plt.savefig(save_path + "/groundtruth_pred_" + city_title + ".png", bbox_inches=None)
 
     return f
 
