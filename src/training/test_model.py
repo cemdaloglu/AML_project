@@ -51,9 +51,9 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
     })
 
     with torch.no_grad():
-        print(pred_path+'predicted_patches.h5')
-        hf = h5py.File(pred_path+'predicted_patches.h5', 'w')
-        
+        #print(pred_path+'predicted_patches.h5')
+        #hf = h5py.File(pred_path+'predicted_patches.h5', 'w')
+
         for dic in tqdm(test_loader, total=len(test_loader)):
             inputs, labels, city_names = dic['image'], dic['mask'], dic['imagename']
 
@@ -76,9 +76,9 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             for (ind, city_name) in zip(range(preds_cpu.shape[0]), city_names):
                 pred = preds_cpu[ind]
                 pred_name = city_name.split(spl_word, 1)[1]
-                hf.create_dataset("pred"+pred_name, data=pred)
-                #np.save(pred_path+"pred"+ pred_name, pred)
-        hf.close()
+                #hf.create_dataset("pred"+pred_name, data=pred)
+                np.save(pred_path+"pred"+ pred_name, pred)
+        #hf.close()
 
         computed_metrics = metrics.compute()
 
