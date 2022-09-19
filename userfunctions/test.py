@@ -38,9 +38,9 @@ if __name__ == '__main__':
     model_checkpoint_path = path_all_model_files_root + "training_checkpoints/"
 
     # delete test_metrics_path/ evaluation_images_path and all files and subdirectories below it. Create new. 
-    shutil.rmtree(test_metrics_path, ignore_errors=True)
+    #shutil.rmtree(test_metrics_path, ignore_errors=True)
     shutil.rmtree(evaluation_images_path, ignore_errors=True)
-    os.makedirs(test_metrics_path)
+    #os.makedirs(test_metrics_path)
     os.makedirs(evaluation_images_path)
 
     model_choice = args.model
@@ -70,4 +70,4 @@ if __name__ == '__main__':
 
     print("Testing model on test set")
 
-    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes)
+    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes, path_all_model_files_root, evaluation_images_path)

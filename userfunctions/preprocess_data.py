@@ -3,7 +3,8 @@ import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from src.data.data_preprocessing import read_and_return_image_and_mask_gdal, cropped_set_interseks_img_mask
+
+from src.data.data_preprocessing import  cropped_set_intersect_img_mask
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('-pad', '--padding', help='Whether padding should be used', default = False, type=str2bool)
     parser.add_argument('-h_inter', '--horizontal_intersection', help='Amount of intersecting pixels in horizontal direction', default = 0, type=int)
     parser.add_argument('-v_inter', '--vertical_intersection', help='Amount of intersecting pixels in vertical direction', default = 0, type=int)
-    parser.add_argument('-t', '--thresh', help='Threshold for cut off of  satellite images', default = 3558, type=int)
+    parser.add_argument('-t', '--thresh', help='Threshold for cut off of  satellite images', default = 6000, type=int)
     parser.add_argument('-i', '--use_infra', help='Whether 4th infrared channel should be used', default = True, type=str2bool)
 
     args = parser.parse_args()
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     use_infra = {args.use_infra}
     ''' )
 
-    cropped_set_interseks_img_mask(args.path,
+    cropped_set_intersect_img_mask(args.path,
         args.hpatchsize, args.wpatchsize,
         args.padding, args.horizontal_intersection, args.vertical_intersection, 
         args.path_output, args.thresh, args.use_infra)
