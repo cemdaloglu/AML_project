@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sn
 import pandas as pd
+import os
 
 
 
@@ -86,7 +87,7 @@ def plot_training(total_loss, total_acc):
     plt.show()
 
 
-def plot_test(metrics):
+def plot_test(metrics, save_path = None):
     classes = ["unknown", "city", "agriculture", "natural", "wetlands", "water"]
 
     # print metrics
@@ -103,7 +104,10 @@ def plot_test(metrics):
 
     # plot confusion matrix
     df_cm = pd.DataFrame(metrics["ConfusionMatrix"].numpy(), index=classes,
-                         columns=classes)
+                         columns=classes, fmt='.3g')
     plt.figure(figsize=(12, 12))
     sn.heatmap(df_cm, annot=True, fmt="g")
-    plt.savefig("ConfusionMatrix.png")
+
+    if save_path is not None:
+        print("saving confusion matrix to: ", save_path)
+        plt.savefig(os.path.join(save_path,"ConfusionMatrix.png"))
