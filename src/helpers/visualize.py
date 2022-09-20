@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sn
+#import seaborn as sn
 import pandas as pd
 import os
 
@@ -25,6 +25,54 @@ def plot_groundtruth_prediction(city_title:str, groundtruth_path:str, prediction
     f.tight_layout()
 
     plt.savefig(save_path + "/groundtruth_pred_" + city_title + ".png", bbox_inches=None)
+
+    return f
+
+    
+
+def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, model_name_list:list, img_groundtruth_pred_path:str):
+    '''
+    @param city_title: Heidelberg or Frankfurt 
+    @param best_model_name: which model performed best to show the prediction
+    @param img_groundtruth_pred_path: path to where image, groundtruth and all models with their predictions lie. 
+
+    Output: 
+        saves a plot with 6 subplots: groundtruth mask, best prediction mask, U-Net difference, 
+                                    VGG16 difference, VGG pretrained difference and VGG index difference" 
+
+
+    '''
+    if city_title.casefold() == "Heidelberg".casefold(): 
+        city_ind = 1
+        city_name = "Heidelberg"
+    elif (city_title.casefold() == "Frankfurt".casefold()) or (city_title.casefold() == "frankfurt am main".casefold()): 
+        city_ind = 0
+        city_name = "Frankfurt"
+    
+    groundtruth = np.load(os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
+
+    f, ax = plt.subplots(1, len(model_name_list) + 2, figsize=(20, 5))
+    #f.suptitle(city_title, fontsize=20)
+    name_list = ["U-Net", "VGG16", "VGG16 pretrained", "VGG16 index"]
+
+    best_prediction = np.load(os.path.join(img_groundtruth_pred_path, best_model_name, "pred_restored_"+str(city_ind)+".npy"))
+
+    ax[0].set_title("Groundtruth", fontsize=20)
+    ax[0].imshow(groundtruth)
+    ax[0].set_axis_off()
+    ax[1].set_title("Best Prediction", fontsize=20)
+    ax[1].imshow(best_prediction)
+    ax[1].set_axis_off()
+
+    for (ind, model) in zip(range(len(model_name_list)), model_name_list):
+        diff = np.load(os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
+        ax[ind+2].set_title(name_list[ind], fontsize=20)
+        ax[ind+2].imshow(diff)
+        ax[ind+2].set_axis_off()
+
+    f.tight_layout()
+
+    plt.savefig(img_groundtruth_pred_path + "/groundtruth_bestpred_diff_" + city_name + ".png", bbox_inches=None)
 
     return f
 

@@ -3,18 +3,8 @@ import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-
+from src.helpers.bash_helper import str2bool
 from src.data.data_preprocessing import  cropped_set_intersect_img_mask
-
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 'True', 'TRUE', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'False', 'FALSE', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
 if __name__ == '__main__':
