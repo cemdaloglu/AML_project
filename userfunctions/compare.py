@@ -15,7 +15,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print(f'''
     best_model = {args.best_model},
-    model_list = {args.model_list},
     save_path = {args.save_path}
     ''' )
 
