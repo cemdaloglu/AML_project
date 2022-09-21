@@ -16,7 +16,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent
 
 
-def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int, path_all_model_files_root:str, pred_path: str):
+def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int, path_all_model_files_root:str, pred_path: str, save_patches:bool = True):
     """
     Compute test metrics on test data set 
 
@@ -51,8 +51,6 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
     })
 
     with torch.no_grad():
-        #print(pred_path+'predicted_patches.h5')
-        #hf = h5py.File(pred_path+'predicted_patches.h5', 'w')
 
         for dic in tqdm(test_loader, total=len(test_loader)):
             inputs, labels, city_names = dic['image'], dic['mask'], dic['imagename']
@@ -71,14 +69,34 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             running_loss += loss * outputs.size(0)
             metrics.update(preds_cpu, labels_cpu)
 
-            # Store predicted mask for visualization?
-            
+            # Store predicted mask for visualization and find best and worst patch
+            best_patch = preds_cpu[0]
+            worst_patch = preds_cpu[0]
+            best_score = 0
+            worst_score = 1e10
             for (ind, city_name) in zip(range(preds_cpu.shape[0]), city_names):
+                num_correct = 0
                 pred = preds_cpu[ind]
                 pred_name = city_name.split(spl_word, 1)[1]
-                #hf.create_dataset("pred"+pred_name, data=pred)
-                np.save(pred_path+"pred"+ pred_name, pred)
-        #hf.close()
+                
+                if save_patches:
+                    np.save(pred_path+"pred"+ pred_name, pred)
+                
+                lab = labels_cpu[ind]
+                num_correct += (pred == lab).sum()
+
+                if num_correct > best_score: 
+                    best_patch = pred
+                    best_score = num_correct
+                if num_correct < worst_score:
+                    worst_patch = pred
+                    worst_score = num_correct
+            # save best and worse patch 
+            print("saving best and worst prediction to ", path_all_model_files_root)
+            np.save(path_all_model_files_root+"pred_best", best_patch)
+            np.save(path_all_model_files_root+"pred_worst", worst_patch)
+                
+
 
         computed_metrics = metrics.compute()
 

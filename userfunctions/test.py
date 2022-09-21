@@ -11,6 +11,7 @@ from src.models.vgg16unet import VGG16UNet
 from src.training.test_model import test
 from src.data.citydataclass import CityData
 from src.data.dataloader import get_test_dataloaders
+from src.helpers.bash_helper import str2bool
 
 
 if __name__ == '__main__':
@@ -23,6 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
     parser.add_argument('--out_classes', help='How many output classes there are, default 6 (0...5). For further information check report', default=6, type=int)
     parser.add_argument('--dataloader_workers', help='Num of workers for dataloader', default=3, type=int)
+    parser.add_argument('--save_patches', help='Whether to save all predicted patches', default=True, type=str2bool)
     
 
     args = parser.parse_args()
@@ -67,4 +69,4 @@ if __name__ == '__main__':
 
     print("Testing model on test set")
 
-    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes, path_all_model_files_root, evaluation_images_path)
+    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes, path_all_model_files_root, evaluation_images_path, args.save_patches)
