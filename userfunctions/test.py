@@ -42,7 +42,8 @@ if __name__ == '__main__':
     #shutil.rmtree(test_metrics_path, ignore_errors=True)
     shutil.rmtree(evaluation_images_path, ignore_errors=True)
     #os.makedirs(test_metrics_path)
-    os.makedirs(evaluation_images_path)
+    if not os.path.exists(evaluation_images_path):
+        os.makedirs(evaluation_images_path)
 
     model_choice = args.model
     if model_choice == "vgg_unet" or model_choice == "vgg_unet_pretrained":
