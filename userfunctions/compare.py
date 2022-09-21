@@ -17,7 +17,7 @@ if __name__ == '__main__':
     print(f'''
     best_model = {args.best_model},
     save_path = {args.save_path}, 
-    model_list = {model_list}
+    model_list = {args.model_list}
     ''' )
 
     if not os.path.exists(args.save_path):
