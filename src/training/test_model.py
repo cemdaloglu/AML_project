@@ -110,8 +110,8 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
         print("saving best and worst prediction to ", best_worst_images_path)
         for (ind, best_ind, worst_ind) in zip(range(len(best_indices)), best_indices, worst_indices):
             print("ind", ind, "best_ind:", best_ind, " worst_ind:", worst_ind)
-            np.save(best_worst_images_path+"pred_best"+str(best_ind), best_patches[best_ind])
-            np.save(best_worst_images_path+"pred_worst"+str(worst_ind), worst_patches[worst_ind])
+            np.save(best_worst_images_path+"pred_best"+str(ind), best_patches[best_ind])
+            np.save(best_worst_images_path+"pred_worst"+str(ind), worst_patches[worst_ind])
             
             #np.save(path_all_model_files_root+"pred_best"+best_name, best_patch)
             #np.save(path_all_model_files_root+"pred_worst"+worst_name, worst_patch)
