@@ -52,7 +52,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
     
     groundtruth = np.load(os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
 
-    f, ax = plt.subplots(3, 2, figsize=(15, 20))
+    f, ax = plt.subplots(2, 3, figsize=(20, 15))
     #f.suptitle(city_title, fontsize=20)
     name_list = ["U-Net", "VGG16", "VGG16 pretrained", "VGG16 index"]
 
@@ -61,21 +61,21 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
     ax[0,0].set_title("Groundtruth", fontsize=30)
     ax[0,0].imshow(groundtruth)
     ax[0,0].set_axis_off()
-    ax[1,0].set_title("Best Prediction", fontsize=30)
-    ax[1,0].imshow(best_prediction)
-    ax[1,0].set_axis_off()
+    ax[0,1].set_title("Best Prediction", fontsize=30)
+    ax[0,1].imshow(best_prediction)
+    ax[0,1].set_axis_off()
 
     colors = ['black','white']
     diff = np.load(os.path.join(img_groundtruth_pred_path, model_name_list[0], "difference_"+str(city_ind)+".npy" ))
-    ax[2,0].set_title(name_list[0], fontsize=30)
-    ax[2,0].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
-    ax[2,0].set_axis_off()
+    ax[0,2].set_title(name_list[0], fontsize=30)
+    ax[0,2].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
+    ax[0,2].set_axis_off()
 
     for (ind, model) in zip(range(1,len(model_name_list)), model_name_list[1:]):
         diff = np.load(os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
-        ax[ind-1,1].set_title(name_list[ind], fontsize=30)
-        ax[ind-1,1].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
-        ax[ind-1,1].set_axis_off()
+        ax[1,ind-1].set_title(name_list[ind], fontsize=30)
+        ax[1,ind-1].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
+        ax[1,ind-1].set_axis_off()
 
     f.tight_layout()
 
