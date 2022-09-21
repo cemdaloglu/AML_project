@@ -86,6 +86,68 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
 
 
 
+def plot_best_worst_segmentations(img_groundtruth_pred_path:str, best_model_name:str):
+    '''
+    @param best_model_name: which model performed best to show the prediction
+    @param img_groundtruth_pred_path: path to where image, groundtruth and all models with their predictions lie. 
+
+    Output: 
+        saves a plot with 10 subplots: The best 5 segmentations and the worst 5 segmentations.
+
+    '''
+    best_worst_img_path = os.path.join(img_groundtruth_pred_path,best_model_name, "best_worst_imges")
+    print(best_worst_img_path)
+    n_plots = len(os.listdir(best_worst_img_path))
+    
+    #f, ax = plt.subplots(2, n_plots, figsize=(20, 15))
+
+    fig = plt.figure(constrained_layout=True)
+    # fig.suptitle('Figure title')            # set global suptitle if desired
+
+    (best_plt, worst_plt) = fig.subfigures(2, 1) # create 2x1 subfigures
+    ax1 = best_plt.subplots(1, n_plots)        
+    ax2 = worst_plt.subplots(1, n_plots)       
+
+    best_plt.suptitle('Best segmentations')               # set suptitle for subfig1
+    worst_plt.suptitle('Worst segmentations')               # set suptitle for subfig2
+    
+    for ind in range(n_plots):
+        best_pred = np.load(os.path.join(best_worst_img_path, "best_pred_" + str(ind) +".npy"))
+        worst_pred = np.load(os.path.join(best_worst_img_path, "worst_pred_" + str(ind) +".npy"))
+    #    
+        #ax1[0,ind].set_title(name_list[0], fontsize=30)
+        ax1[0,ind].imshow(best_pred)
+        ax1[0,ind].set_axis_off()
+        #ax2[1,ind].set_title(name_list[0], fontsize=30)
+        ax2[1,ind].imshow(worst_pred)
+        ax2[1,ind].set_axis_off()
+        
+
+    
+
+    #for ind in range(n_plots):
+    #    best_pred = np.load(os.path.join(best_worst_img_path, "best_pred_" + str(ind) +".npy"))
+    #    worst_pred = np.load(os.path.join(best_worst_img_path, "worst_pred_" + str(ind) +".npy"))
+    #    
+    #    np.load(os.path.join(img_groundtruth_pred_path, model_name_list[0], "difference_"+str(city_ind)+".npy" ))
+    #    ax[0,ind].set_title(name_list[0], fontsize=30)
+    #    ax[0,ind].imshow(best_pred, cmap=matplotlib.colors.ListedColormap(colors))
+    #    ax[0,ind].set_axis_off()
+    #    ax[1,ind].set_title(name_list[0], fontsize=30)
+    #    ax[1,ind].imshow(worst_pred, cmap=matplotlib.colors.ListedColormap(colors))
+    #    ax[1,ind].set_axis_off()
+
+
+    fig.tight_layout()
+
+    print("saving to: ", best_worst_img_path + "/best_worst_img.png")
+    plt.savefig(best_worst_img_path + "/best_worst_img.png", bbox_inches=None)
+
+    return fig
+
+
+
+
 def plot_image_groundtruth_prediction(image, groundtruth, prediction, loss = None):
     if torch.is_tensor(image):
         image = torch.permute(image[:,:,:3], (1, 2, 0)).numpy()
