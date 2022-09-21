@@ -13,7 +13,7 @@ def plot_groundtruth_prediction(city_title:str, groundtruth_path:str, prediction
     groundtruth = np.load(groundtruth_path)
     prediction = np.load(prediction_path)
 
-    f, ax = plt.subplots(1, 2, figsize=(20, 10))
+    f, ax = plt.subplots(1, 2, figsize=(20, 12))
     f.suptitle(city_title, fontsize=16)
 
     ax[0].set_title("Labels")
@@ -50,6 +50,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
         city_ind = 0
         city_name = "Frankfurt"
     
+    print("load groundtruth from: ", os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
     groundtruth = np.load(os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
 
     f, ax = plt.subplots(1, len(model_name_list) + 2, figsize=(20, 5))
