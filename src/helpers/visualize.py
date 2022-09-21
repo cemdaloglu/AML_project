@@ -52,30 +52,34 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
     
     groundtruth = np.load(os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
 
-    f, ax = plt.subplots(1, len(model_name_list) + 2, figsize=(20, 5))
+    f, ax = plt.subplots(3, 2, figsize=(15, 20))
     #f.suptitle(city_title, fontsize=20)
     name_list = ["U-Net", "VGG16", "VGG16 pretrained", "VGG16 index"]
 
     best_prediction = np.load(os.path.join(img_groundtruth_pred_path, best_model_name, "pred_restored_"+str(city_ind)+".npy"))
 
-    ax[0].set_title("Groundtruth", fontsize=20)
-    ax[0].imshow(groundtruth)
-    ax[0].set_axis_off()
-    ax[1].set_title("Best Prediction", fontsize=20)
-    ax[1].imshow(best_prediction)
-    ax[1].set_axis_off()
+    ax[0,0].set_title("Groundtruth", fontsize=30)
+    ax[0,0].imshow(groundtruth)
+    ax[0,0].set_axis_off()
+    ax[1,0].set_title("Best Prediction", fontsize=30)
+    ax[1,0].imshow(best_prediction)
+    ax[1,0].set_axis_off()
 
     colors = ['black','white']
-    for (ind, model) in zip(range(len(model_name_list)), model_name_list):
-        print(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy")
-        print("load diff from: ", os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
+    diff = np.load(os.path.join(img_groundtruth_pred_path, model_name_list[0], "difference_"+str(city_ind)+".npy" ))
+    ax[2,0].set_title(name_list[0], fontsize=30)
+    ax[2,0].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
+    ax[2,0].set_axis_off()
+
+    for (ind, model) in zip(range(1,len(model_name_list)), model_name_list[1:]):
         diff = np.load(os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
-        ax[ind+2].set_title(name_list[ind], fontsize=20)
-        ax[ind+2].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
-        ax[ind+2].set_axis_off()
+        ax[ind-1,1].set_title(name_list[ind], fontsize=30)
+        ax[ind-1,1].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
+        ax[ind-1,1].set_axis_off()
 
     f.tight_layout()
 
+    print("saving to: ", img_groundtruth_pred_path + "/groundtruth_bestpred_diff_" + city_name + ".png")
     plt.savefig(img_groundtruth_pred_path + "/groundtruth_bestpred_diff_" + city_name + ".png", bbox_inches=None)
 
     return f
