@@ -107,9 +107,9 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
         worst_indices = sorted(range(len(worst_scores)), key = lambda sub: worst_scores[sub])[::-1][-n_best_worst:][::-1]
 
         # save best 
+        print("saving best and worst prediction to ", best_worst_images_path)
         for (ind, best_ind, worst_ind) in zip(range(len(best_indices)), best_indices, worst_indices):
             print("ind", ind, "best_ind:", best_ind, " worst_ind:", worst_ind)
-            print("saving best and worst prediction to ", best_worst_images_path)
             np.save(best_worst_images_path+"pred_best"+str(best_ind), best_patches[best_ind])
             np.save(best_worst_images_path+"pred_worst"+str(worst_ind), worst_patches[worst_ind])
             
