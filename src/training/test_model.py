@@ -74,6 +74,8 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             worst_patch = preds_cpu[0]
             best_score = 0
             worst_score = 1e10
+            best_name = ""
+            worst_name = ""
             for (ind, city_name) in zip(range(preds_cpu.shape[0]), city_names):
                 num_correct = 0
                 pred = preds_cpu[ind]
@@ -88,13 +90,15 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
                 if num_correct > best_score: 
                     best_patch = pred
                     best_score = num_correct
+                    best_name = pred_name
                 if num_correct < worst_score:
                     worst_patch = pred
                     worst_score = num_correct
+                    worst_name = pred_name
             # save best and worse patch 
             print("saving best and worst prediction to ", path_all_model_files_root)
-            np.save(path_all_model_files_root+"pred_best", best_patch)
-            np.save(path_all_model_files_root+"pred_worst", worst_patch)
+            np.save(path_all_model_files_root+"pred_best"+best_name, best_patch)
+            np.save(path_all_model_files_root+"pred_worst"+worst_name, worst_patch)
                 
 
 
