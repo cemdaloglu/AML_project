@@ -102,12 +102,13 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
         # Get best and worst n_best_worst patches: 
 
         # Indices of n_best_worst largest elements in list using sorted() + lambda + list slicing
+        # best first, and worst first
         best_indices = sorted(range(len(best_scores)), key = lambda sub: best_scores[sub])[-n_best_worst:][::-1]
         worst_indices = sorted(range(len(worst_scores)), key = lambda sub: worst_scores[sub])[::-1][-n_best_worst:][::-1]
 
         # save best 
-        for (best_ind, worst_ind) in zip(best_indices, worst_indices):
-            print("best_ind:", best_ind, " worst_ind:", worst_ind)
+        for (ind, best_ind, worst_ind) in zip(range(len(best_indices)), best_indices, worst_indices):
+            print("ind", ind, "best_ind:", best_ind, " worst_ind:", worst_ind)
             print("saving best and worst prediction to ", best_worst_images_path)
             np.save(best_worst_images_path+"pred_best"+str(best_ind), best_patches[best_ind])
             np.save(best_worst_images_path+"pred_worst"+str(worst_ind), worst_patches[worst_ind])
