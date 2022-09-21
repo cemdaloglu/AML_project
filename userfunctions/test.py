@@ -11,6 +11,7 @@ from src.models.vgg16unet import VGG16UNet
 from src.training.test_model import test
 from src.data.citydataclass import CityData
 from src.data.dataloader import get_test_dataloaders
+from src.models.unet_2_layer import Unet
 
 
 if __name__ == '__main__':
@@ -37,9 +38,9 @@ if __name__ == '__main__':
     model_checkpoint_path = path_all_model_files_root + "training_checkpoints/"
 
     # delete test_metrics_path/ evaluation_images_path and all files and subdirectories below it. Create new. 
-    shutil.rmtree(test_metrics_path, ignore_errors=True)
+    #shutil.rmtree(test_metrics_path, ignore_errors=True)
     shutil.rmtree(evaluation_images_path, ignore_errors=True)
-    os.makedirs(test_metrics_path)
+    #os.makedirs(test_metrics_path)
     os.makedirs(evaluation_images_path)
 
     model_choice = args.model
@@ -47,6 +48,8 @@ if __name__ == '__main__':
         model = VGG16UNet(out_classes=args.out_classes)
     elif model_choice == "deep_unet":
         model = UNet(out_classes=args.out_classes)
+    elif model_choice == "2layer_unet":
+        model = Unet(out_classes=args.out_classes)
     else: 
         model = UNet(out_classes=args.out_classes)
 
@@ -67,4 +70,4 @@ if __name__ == '__main__':
 
     print("Testing model on test set")
 
-    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes)
+    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes, path_all_model_files_root, evaluation_images_path)

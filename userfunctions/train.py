@@ -17,6 +17,7 @@ from src.data.citydataclass import CityData
 from src.data.dataloader import get_dataloaders
 from src.models.unet import UNet
 from src.models.vgg16unet import VGG16UNet
+from src.models.unet_2_layer import Unet
 from src.training.train_model import train_model
 from src.metric.metric_helpers import create_metric_file
 
@@ -72,6 +73,8 @@ if __name__ == '__main__':
         model.freeze_pretrained_params()
     elif model_choice == "deep_unet":
         model = UNet(out_classes = args.out_classes)
+    elif model_choice == "2layer_unet":
+        model = Unet(out_classes = args.out_classes)
     else: 
         model = UNet(out_classes = args.out_classes)
 
