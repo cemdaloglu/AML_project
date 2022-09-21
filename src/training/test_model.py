@@ -16,7 +16,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent
 
 
-def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int, path_all_model_files_root:str, pred_path: str, save_patches:bool = True):
+def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int, path_all_model_files_root:str, pred_path: str, best_worst_images_path, save_patches:bool = True, n_best_worst = 5):
     """
     Compute test metrics on test data set 
 
@@ -49,7 +49,8 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
                                  average="none", num_classes=n_classes),
         "ConfusionMatrix": ConfusionMatrix(n_classes, normalize="true")
     })
-
+    # To store the best and worst segmentation 
+    best_scores = []; worst_scores = []; best_patches = []; worst_patches = []; best_names = []; worst_names = []
     with torch.no_grad():
 
         for dic in tqdm(test_loader, total=len(test_loader)):
@@ -70,12 +71,10 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
             metrics.update(preds_cpu, labels_cpu)
 
             # Store predicted mask for visualization and find best and worst patch
-            best_patch = preds_cpu[0]
-            worst_patch = preds_cpu[0]
-            best_score = 0
-            worst_score = 1e10
-            best_name = ""
-            worst_name = ""
+            best_patch = preds_cpu[0]; worst_patch = preds_cpu[0]
+            best_score = 0; worst_score = 1e10
+            best_name = ""; worst_name = ""
+
             for (ind, city_name) in zip(range(preds_cpu.shape[0]), city_names):
                 num_correct = 0
                 pred = preds_cpu[ind]
@@ -96,12 +95,27 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
                     worst_score = num_correct
                     worst_name = pred_name
             # save best and worse patch 
-            print("saving best and worst prediction to ", path_all_model_files_root)
-            np.save(path_all_model_files_root+"pred_best"+best_name, best_patch)
-            np.save(path_all_model_files_root+"pred_worst"+worst_name, worst_patch)
+            best_scores.append(best_score); worst_scores.append(worst_score)
+            best_patches.append(best_patch); worst_patches.append(worst_patch)
+            best_names.append(best_name); worst_names.append(worst_name)
+
+        # Get best and worst n_best_worst patches: 
+
+        # Indices of n_best_worst largest elements in list using sorted() + lambda + list slicing
+        best_indices = sorted(range(len(best_scores)), key = lambda sub: best_scores[sub])[-n_best_worst:][::-1]
+        worst_indices = sorted(range(len(worst_scores)), key = lambda sub: worst_scores[sub])[::-1][-n_best_worst:][::-1]
+
+        # save best 
+        for (best_ind, worst_ind) in zip(best_indices, worst_indices):
+            print("best_ind:", best_ind, " worst_ind:", worst_ind)
+            print("saving best and worst prediction to ", best_worst_images_path)
+            np.save(best_worst_images_path+"pred_best"+str(best_ind), best_patches[best_ind])
+            np.save(best_worst_images_path+"pred_worst"+str(worst_ind), worst_patches[worst_ind])
+            
+            #np.save(path_all_model_files_root+"pred_best"+best_name, best_patch)
+            #np.save(path_all_model_files_root+"pred_worst"+worst_name, worst_patch)
                 
-
-
+      
         computed_metrics = metrics.compute()
 
         test_loss = running_loss / len(test_loader.dataset)
