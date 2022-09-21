@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 #import seaborn as sn
 import pandas as pd
@@ -28,7 +29,7 @@ def plot_groundtruth_prediction(city_title:str, groundtruth_path:str, prediction
 
     return f
 
-    
+
 
 def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, model_name_list:list, img_groundtruth_pred_path:str):
     '''
@@ -64,10 +65,11 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
     ax[1].imshow(best_prediction)
     ax[1].set_axis_off()
 
+    colors = ['black','white']
     for (ind, model) in zip(range(len(model_name_list)), model_name_list):
         diff = np.load(os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
         ax[ind+2].set_title(name_list[ind], fontsize=20)
-        ax[ind+2].imshow(diff)
+        ax[ind+2].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
         ax[ind+2].set_axis_off()
 
     f.tight_layout()
