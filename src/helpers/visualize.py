@@ -67,6 +67,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
 
     colors = ['black','white']
     for (ind, model) in zip(range(len(model_name_list)), model_name_list):
+        print(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy")
         print("load diff from: ", os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
         diff = np.load(os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
         ax[ind+2].set_title(name_list[ind], fontsize=20)
