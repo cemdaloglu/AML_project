@@ -13,7 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('-p_save', '--save_path', help='Path in which to store the merged prediction. "None" if it should not be saved.', default = '../AML_project/img_groundtruth_pred')
 
     args = parser.parse_args()
-    model_list = [str(item) for item in args.model_list.split(',')]
+    #model_list = [str(item) for item in args.model_list.split(',')]
     print(f'''
     best_model = {args.best_model},
     save_path = {args.save_path}, 
@@ -23,5 +23,5 @@ if __name__ == '__main__':
     if not os.path.exists(args.save_path):
         os.makedirs(args.save_path)
 
-    plot_groundtruth_bestpred_differences("Frankfurt", args.best_model, model_list, args.save_path)
-    plot_groundtruth_bestpred_differences("Heidelberg", args.best_model, model_list, args.save_path)
+    plot_groundtruth_bestpred_differences("Frankfurt", args.best_model, args.model_list, args.save_path)
+    plot_groundtruth_bestpred_differences("Heidelberg", args.best_model, args.model_list, args.save_path)
