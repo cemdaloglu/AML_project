@@ -50,7 +50,6 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
         city_ind = 0
         city_name = "Frankfurt"
     
-    print("load groundtruth from: ", os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
     groundtruth = np.load(os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
 
     f, ax = plt.subplots(1, len(model_name_list) + 2, figsize=(20, 5))
@@ -68,6 +67,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
 
     colors = ['black','white']
     for (ind, model) in zip(range(len(model_name_list)), model_name_list):
+        print("load diff from: ", os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
         diff = np.load(os.path.join(img_groundtruth_pred_path, model, "difference_"+str(city_ind)+".npy" ))
         ax[ind+2].set_title(name_list[ind], fontsize=20)
         ax[ind+2].imshow(diff, cmap=matplotlib.colors.ListedColormap(colors))
