@@ -21,6 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--result_path', help='Path for storing testing results', required=False, default="src/results")
     parser.add_argument('-m', '--model', help='Which model you are testing, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
     parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
+    parser.add_argument('--n_indices', help='Number of trainable image indices of prepended subnetwork. Currenty available just for VGG16 UNet.', default=0, type=int, required=False)
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
     parser.add_argument('--out_classes', help='How many output classes there are, default 6 (0...5). For further information check report', default=6, type=int)
     parser.add_argument('--dataloader_workers', help='Num of workers for dataloader', default=3, type=int)
@@ -45,7 +46,8 @@ if __name__ == '__main__':
 
     model_choice = args.model
     if model_choice == "vgg_unet" or model_choice == "vgg_unet_pretrained":
-        model = VGG16UNet(out_classes=args.out_classes)
+        model = VGG16UNet(out_classes=args.out_classes,
+                          n_indices=args.n_indices)
     elif model_choice == "deep_unet":
         model = UNet(out_classes=args.out_classes)
     elif model_choice == "2layer_unet":
