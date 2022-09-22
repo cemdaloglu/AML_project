@@ -2,9 +2,10 @@ import torch
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import seaborn as sn
+#import seaborn as sn
 import pandas as pd
 import os
+import glob 
 
 
 
@@ -98,14 +99,16 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
     # Plot best worst segmentations
     best_worst_img_path = os.path.join(results_path, best_model_name, "best_worst_images")
     best_worst_img_files = sorted(os.listdir(best_worst_img_path))
-    n_plots = int(len(best_worst_img_files)/2)
+    n_plots = len(glob.glob1(best_worst_img_path,"pred_worst*")) 
     #best_imgs = best_worst_img_files[:n_plots]
     worst_imgs = best_worst_img_files[n_plots:]
-
+    print("worst_imgs: ", worst_imgs, "len(worst_imgs)", len(worst_imgs))
+    
     #spl_word_best = 'pred_best'
     spl_word_worst = 'pred_worst'
+    
 
-    fig = plt.figure(constrained_layout=True, figsize=(7, 15))
+    fig = plt.figure(constrained_layout=True, figsize=(10, 5))
         
     (worst_plt, mask_worst) = fig.subfigures(2, 1) # create 2x1 subfigures
     #ax_best_pred = best_plt.subplots(1, n_plots)        
@@ -121,6 +124,7 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
     for (ind, pred_worst_name) in zip(range(len(worst_imgs)), worst_imgs):
         # get name extensions
         #pred_best_extension = pred_best_name.split(spl_word_best, 1)[1]
+        
         pred_worst_extension = pred_worst_name.split(spl_word_worst, 1)[1]
 
         #pred_best = np.load(os.path.join(best_worst_img_path, pred_best_name))
@@ -147,27 +151,7 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
 
             
 
-    
-
-    #for ind in range(n_plots):
-    #    best_pred = np.load(os.path.join(best_worst_img_path, "best_pred_" + str(ind) +".npy"))
-    #    worst_pred = np.load(os.path.join(best_worst_img_path, "worst_pred_" + str(ind) +".npy"))
-    #    
-    #    np.load(os.path.join(img_groundtruth_pred_path, model_name_list[0], "difference_"+str(city_ind)+".npy" ))
-    #    ax[0,ind].set_title(name_list[0], fontsize=30)
-    #    ax[0,ind].imshow(best_pred, cmap=matplotlib.colors.ListedColormap(colors))
-    #    ax[0,ind].set_axis_off()
-    #    ax[1,ind].set_title(name_list[0], fontsize=30)
-    #    ax[1,ind].imshow(worst_pred, cmap=matplotlib.colors.ListedColormap(colors))
-    #    ax[1,ind].set_axis_off()
-
-
-    fig.tight_layout()
-
-    print("saving to: ", best_worst_img_path + "/best_worst_img.png")
-    plt.savefig(best_worst_img_path + "/best_worst_img.png", bbox_inches=None)
-
-    return fig
+   
 
 
 
