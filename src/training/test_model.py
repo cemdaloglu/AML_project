@@ -110,8 +110,8 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
         for (best_ind, worst_ind) in zip(best_indices, worst_indices):
             print("best_names[best_ind]", best_names[best_ind], "worst_names[worst_ind]", worst_names[worst_ind])
             print(best_worst_images_path+"pred_best_"+best_names[best_ind])
-            np.save(best_worst_images_path+"pred_best_"+best_names[best_ind], best_patches[best_ind])
-            np.save(best_worst_images_path+"pred_worst_"+worst_names[worst_ind], worst_patches[worst_ind])       
+            np.save(best_worst_images_path+"pred_best"+best_names[best_ind], best_patches[best_ind])
+            np.save(best_worst_images_path+"pred_worst"+worst_names[worst_ind], worst_patches[worst_ind])       
       
         computed_metrics = metrics.compute()
 
