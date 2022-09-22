@@ -12,6 +12,8 @@ from src.training.test_model import test
 from src.data.citydataclass import CityData
 from src.data.dataloader import get_test_dataloaders
 from src.helpers.bash_helper import str2bool
+from src.models.unet_2_layer import Unet
+
 
 
 if __name__ == '__main__':
@@ -53,6 +55,8 @@ if __name__ == '__main__':
         model = VGG16UNet(out_classes=args.out_classes)
     elif model_choice == "deep_unet":
         model = UNet(out_classes=args.out_classes)
+    elif model_choice == "2layer_unet":
+        model = Unet(out_classes=args.out_classes)
     else: 
         model = UNet(out_classes=args.out_classes)
 
