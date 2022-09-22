@@ -86,7 +86,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
 
 
 
-def plot_best_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", results_path:str = "src/results", best_model_name:str = "unet_lr001_bs32_cel"):
+def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", results_path:str = "src/results", best_model_name:str = "unet_lr001_bs32_cel"):
     '''
     @param best_model_name: which model performed best to show the prediction
     @param img_groundtruth_pred_path: path to where image, groundtruth and all models with their predictions lie. 
@@ -99,46 +99,46 @@ def plot_best_worst_segmentations(patch_test_masks_path:str = "patches/test/mask
     best_worst_img_path = os.path.join(results_path, best_model_name, "best_worst_images")
     best_worst_img_files = sorted(os.listdir(best_worst_img_path))
     n_plots = int(len(best_worst_img_files)/2)
-    best_imgs = best_worst_img_files[:n_plots]
+    #best_imgs = best_worst_img_files[:n_plots]
     worst_imgs = best_worst_img_files[n_plots:]
 
-    spl_word_best = 'pred_best'
+    #spl_word_best = 'pred_best'
     spl_word_worst = 'pred_worst'
 
-    fig = plt.figure(constrained_layout=True, figsize=(15, 15))
+    fig = plt.figure(constrained_layout=True, figsize=(7, 15))
         
-    (best_plt, mask_best, worst_plt, mask_worst) = fig.subfigures(4, 1) # create 2x1 subfigures
-    ax_best_pred = best_plt.subplots(1, n_plots)        
-    ax_mask_best = mask_best.subplots(1, n_plots)      
+    (worst_plt, mask_worst) = fig.subfigures(2, 1) # create 2x1 subfigures
+    #ax_best_pred = best_plt.subplots(1, n_plots)        
+    #ax_mask_best = mask_best.subplots(1, n_plots)      
     ax_worst_plt = worst_plt.subplots(1, n_plots)        
     ax_mask_worst = mask_worst.subplots(1, n_plots)       
 
-    best_plt.suptitle('Best segmentations', fontsize = 30)              
-    mask_best.suptitle('Corresponding groundtruth segmentations', fontsize = 30)    
+    #best_plt.suptitle('Best segmentations', fontsize = 30)              
+    #mask_best.suptitle('Corresponding groundtruth segmentations', fontsize = 30)    
     worst_plt.suptitle('Worst segmentations', fontsize = 30)               
     mask_worst.suptitle('Corresponding groundtruth segmentations', fontsize = 30)
 
-    for (ind, pred_best_name, pred_worst_name) in zip(range(len(best_imgs)), best_imgs, worst_imgs):
+    for (ind, pred_worst_name) in zip(range(len(worst_imgs)), worst_imgs):
         # get name extensions
-        pred_best_extension = pred_best_name.split(spl_word_best, 1)[1]
+        #pred_best_extension = pred_best_name.split(spl_word_best, 1)[1]
         pred_worst_extension = pred_worst_name.split(spl_word_worst, 1)[1]
 
-        pred_best = np.load(os.path.join(best_worst_img_path, pred_best_name))
-        mask_compare_best = np.load(os.path.join(patch_test_masks_path, "mask"+pred_best_extension))
+        #pred_best = np.load(os.path.join(best_worst_img_path, pred_best_name))
+        #mask_compare_best = np.load(os.path.join(patch_test_masks_path, "mask"+pred_best_extension))
         pred_worst = np.load(os.path.join(best_worst_img_path, pred_worst_name))
         mask_compare_worst = np.load(os.path.join(patch_test_masks_path, "mask"+pred_worst_extension))
 
-        ax_best_pred[ind].imshow(pred_best)
-        ax_best_pred[ind].set_axis_off()
-        ax_mask_best[ind].imshow(mask_compare_best)
-        ax_mask_best[ind].set_axis_off()
+        #ax_best_pred[ind].imshow(pred_best)
+        #ax_best_pred[ind].set_axis_off()
+        #ax_mask_best[ind].imshow(mask_compare_best)
+        #ax_mask_best[ind].set_axis_off()
         ax_worst_plt[ind].imshow(pred_worst)
         ax_worst_plt[ind].set_axis_off()
         ax_mask_worst[ind].imshow(mask_compare_worst)
         ax_mask_worst[ind].set_axis_off()
 
-    print("saving to: ", best_worst_img_path + "/best_worst_comparison.png")
-    plt.savefig(best_worst_img_path + "/best_worst_comparison.png", bbox_inches=None)
+    print("saving to: ", best_worst_img_path + "/worst_comparison.png")
+    plt.savefig(best_worst_img_path + "/worst_comparison.png", bbox_inches=None)
 
     return fig
 
