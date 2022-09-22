@@ -97,52 +97,38 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
 
     '''
     # Plot best worst segmentations
-    best_worst_img_path = os.path.join(results_path, best_model_name, "best_worst_images")
-    best_worst_img_files = sorted(os.listdir(best_worst_img_path))
+    best_model_path = os.path.join(results_path, best_model_name)
+    best_worst_img_path = os.path.join(best_model_path, "best_worst_images")
+
     n_plots = len(glob.glob1(best_worst_img_path,"pred_worst*")) 
-    #best_imgs = best_worst_img_files[:n_plots]
     worst_imgs = glob.glob1(best_worst_img_path,"pred_worst*")
-    print("worst_imgs: ", worst_imgs, "len(worst_imgs)", len(worst_imgs), "n_plots", n_plots)
-    
-    #spl_word_best = 'pred_best'
+
     spl_word_worst = 'pred_worst'
     
-
     fig = plt.figure(constrained_layout=True, figsize=(10, 5))
         
     (worst_plt, mask_worst) = fig.subfigures(2, 1) # create 2x1 subfigures
-    #ax_best_pred = best_plt.subplots(1, n_plots)        
-    #ax_mask_best = mask_best.subplots(1, n_plots)      
+     
     ax_worst_plt = worst_plt.subplots(1, n_plots)        
     ax_mask_worst = mask_worst.subplots(1, n_plots)       
-
-    #best_plt.suptitle('Best segmentations', fontsize = 30)              
-    #mask_best.suptitle('Corresponding groundtruth segmentations', fontsize = 30)    
+   
     worst_plt.suptitle('Worst segmentations', fontsize = 30)               
     mask_worst.suptitle('Corresponding groundtruth segmentations', fontsize = 30)
 
     for (ind, pred_worst_name) in zip(range(len(worst_imgs)), worst_imgs):
-        # get name extensions
-        #pred_best_extension = pred_best_name.split(spl_word_best, 1)[1]
         
         pred_worst_extension = pred_worst_name.split(spl_word_worst, 1)[1]
 
-        #pred_best = np.load(os.path.join(best_worst_img_path, pred_best_name))
-        #mask_compare_best = np.load(os.path.join(patch_test_masks_path, "mask"+pred_best_extension))
         pred_worst = np.load(os.path.join(best_worst_img_path, pred_worst_name))
         mask_compare_worst = np.load(os.path.join(patch_test_masks_path, "mask"+pred_worst_extension))
 
-        #ax_best_pred[ind].imshow(pred_best)
-        #ax_best_pred[ind].set_axis_off()
-        #ax_mask_best[ind].imshow(mask_compare_best)
-        #ax_mask_best[ind].set_axis_off()
         ax_worst_plt[ind].imshow(pred_worst)
         ax_worst_plt[ind].set_axis_off()
         ax_mask_worst[ind].imshow(mask_compare_worst)
         ax_mask_worst[ind].set_axis_off()
 
     print("saving to: ", best_worst_img_path + "/worst_comparison.png")
-    plt.savefig(best_worst_img_path + "/worst_comparison.png", bbox_inches=None)
+    plt.savefig(best_model_path + "/worst_comparison.png", bbox_inches=None)
 
     return fig
 
