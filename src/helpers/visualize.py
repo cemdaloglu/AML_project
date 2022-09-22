@@ -112,8 +112,8 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
     ax_worst_plt = worst_plt.subplots(1, n_plots)        
     ax_mask_worst = mask_worst.subplots(1, n_plots)       
    
-    worst_plt.suptitle('Worst segmentations', fontsize = 30)               
-    mask_worst.suptitle('Corresponding groundtruth segmentations', fontsize = 30)
+    worst_plt.suptitle('Worst segmentations', fontsize = 22)               
+    mask_worst.suptitle('Corresponding groundtruth segmentations', fontsize = 22)
 
     for (ind, pred_worst_name) in zip(range(len(worst_imgs)), worst_imgs):
         
