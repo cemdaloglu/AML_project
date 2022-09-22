@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     # delete test_metrics_path/ evaluation_images_path and all files and subdirectories below it. Create new. 
     #shutil.rmtree(test_metrics_path, ignore_errors=True)
-    shutil.rmtree(evaluation_images_path, ignore_errors=True)
+    #shutil.rmtree(evaluation_images_path, ignore_errors=True)
     #os.makedirs(test_metrics_path)
     if not os.path.exists(evaluation_images_path):
         os.makedirs(evaluation_images_path)
