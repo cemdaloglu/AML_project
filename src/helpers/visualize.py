@@ -101,7 +101,7 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
     best_worst_img_files = sorted(os.listdir(best_worst_img_path))
     n_plots = len(glob.glob1(best_worst_img_path,"pred_worst*")) 
     #best_imgs = best_worst_img_files[:n_plots]
-    worst_imgs = best_worst_img_files[n_plots:]
+    worst_imgs = glob.glob1(best_worst_img_path,"pred_worst*")
     print("worst_imgs: ", worst_imgs, "len(worst_imgs)", len(worst_imgs), "n_plots", n_plots)
     
     #spl_word_best = 'pred_best'
