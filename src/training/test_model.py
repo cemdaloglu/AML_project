@@ -84,7 +84,9 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
                     np.save(pred_path+"pred"+ pred_name, pred)
                 
                 lab = labels_cpu[ind]
-                num_correct += (pred == lab).sum()
+                # set padded prediction to zero where groundtruth was zero (unlabeled)
+                pred_ignore0 = np.where(lab==0, lab, pred)
+                num_correct += (pred_ignore0 == lab).sum()
 
                 if num_correct > best_score: 
                     best_patch = pred
@@ -109,7 +111,7 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
         print("saving best and worst prediction to ", best_worst_images_path)
         for (best_ind, worst_ind) in zip(best_indices, worst_indices):
             print("best_names[best_ind]", best_names[best_ind], "worst_names[worst_ind]", worst_names[worst_ind])
-            print(best_worst_images_path+"pred_best_"+best_names[best_ind])
+            print(best_worst_images_path+"pred_best"+best_names[best_ind])
             np.save(best_worst_images_path+"pred_best"+best_names[best_ind], best_patches[best_ind])
             np.save(best_worst_images_path+"pred_worst"+worst_names[worst_ind], worst_patches[worst_ind])       
       
