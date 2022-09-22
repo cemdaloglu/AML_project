@@ -7,9 +7,10 @@ import sys
 
 
 def put_patches_together(results_folder:str, model_name:str, save_path:str = None):
-    model_save_path = os.path.join(save_path, model_name) 
-    print("saving prediction to", model_save_path)
-    
+    if save_path is not None:
+        model_save_path = os.path.join(save_path, model_name) 
+        print("saving prediction to", model_save_path)
+        
     pred_path = os.path.join(results_folder, model_name, "evaluation_images/")
     if not os.path.exists(pred_path):
         sys.exit("Run the test.py module first!")
@@ -56,4 +57,40 @@ def put_patches_together(results_folder:str, model_name:str, save_path:str = Non
         if save_path is not None:
             # save restored image
             np.save(model_save_path+"/pred_restored_"+str(city_ind)+".npy", restored_img)
+
+
+def create_difference(img_groundtruth_pred_path:str, model_name:str):
+    '''
+    Creates the differences of the groundtruth prediction and the merged prdicion of a certain model. 
+    @param img_groundtruth_pred_path: path to where the image, groundtruth and prediction lie of the merged patches
+    @param model_name: which model did the prediction 
+    '''
+
+    model_save_path = os.path.join(img_groundtruth_pred_path, model_name) 
+    print("model_save_path = ", model_save_path)
+
+    for city_ind in range(2):
+        groundtruth_path = os.path.join(img_groundtruth_pred_path, 'groundtruth_'+str(city_ind)+'.npy')
+        prediction_path = os.path.join(img_groundtruth_pred_path, model_name, 'pred_restored_'+str(city_ind)+'.npy')
+        print("groundtruth_path = ", groundtruth_path)
+        print("prediction_path = ", prediction_path)
+
+        # read in data 
+        groundtruth = np.load(groundtruth_path)
+        prediction = np.load(prediction_path)
+
+        # Create differece to groundtruth
+        rows_missing = groundtruth.shape[0] - prediction.shape[0]
+        cols_missing = groundtruth.shape[1] - prediction.shape[1]
+
+        # bring to same size
+        padded_prediction = np.pad(prediction, ((0, rows_missing), (0, cols_missing)), 'constant')
+
+        # set padded prediction to zero where hroundtruth was zero (unlabeled)
+        padded_prediction = np.where(groundtruth==0, groundtruth, padded_prediction)
+
+        diff = groundtruth - padded_prediction != 0
+
+        # save restored image
+        np.save(model_save_path+"/difference_"+str(city_ind)+".npy", diff)
 

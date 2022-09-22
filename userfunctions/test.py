@@ -11,7 +11,9 @@ from src.models.vgg16unet import VGG16UNet
 from src.training.test_model import test
 from src.data.citydataclass import CityData
 from src.data.dataloader import get_test_dataloaders
+from src.helpers.bash_helper import str2bool
 from src.models.unet_2_layer import Unet
+
 
 
 if __name__ == '__main__':
@@ -24,7 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
     parser.add_argument('--out_classes', help='How many output classes there are, default 6 (0...5). For further information check report', default=6, type=int)
     parser.add_argument('--dataloader_workers', help='Num of workers for dataloader', default=3, type=int)
-    
+    parser.add_argument('--save_patches', help='Whether to save all predicted patches', default=True, type=str2bool)
+    parser.add_argument('--n_best_worst', help='How many best and worst predictions to save', default=5, type=int)
 
     args = parser.parse_args()
 
@@ -35,13 +38,17 @@ if __name__ == '__main__':
     path_all_model_files_root = f"{args.result_path}/{args.name}/"
     test_metrics_path = path_all_model_files_root + "test_metrics/"
     evaluation_images_path = path_all_model_files_root + "evaluation_images/"
+    best_worst_images_path = path_all_model_files_root + "best_worst_images/"
     model_checkpoint_path = path_all_model_files_root + "training_checkpoints/"
 
     # delete test_metrics_path/ evaluation_images_path and all files and subdirectories below it. Create new. 
     #shutil.rmtree(test_metrics_path, ignore_errors=True)
-    shutil.rmtree(evaluation_images_path, ignore_errors=True)
+    #shutil.rmtree(evaluation_images_path, ignore_errors=True)
     #os.makedirs(test_metrics_path)
-    os.makedirs(evaluation_images_path)
+    if not os.path.exists(evaluation_images_path):
+        os.makedirs(evaluation_images_path)
+    if not os.path.exists(best_worst_images_path):
+        os.makedirs(best_worst_images_path)
 
     model_choice = args.model
     if model_choice == "vgg_unet" or model_choice == "vgg_unet_pretrained":
@@ -70,4 +77,4 @@ if __name__ == '__main__':
 
     print("Testing model on test set")
 
-    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes, path_all_model_files_root, evaluation_images_path)
+    test(model, test_loader, use_cuda, args.loss_criterion, args.out_classes, path_all_model_files_root, evaluation_images_path, best_worst_images_path, args.save_patches, args.n_best_worst )
