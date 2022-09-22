@@ -86,7 +86,6 @@ def test(model, test_loader, use_cuda: bool, loss_criterion: str, n_classes: int
                 lab = labels_cpu[ind]
                 # set padded prediction to zero where groundtruth was zero (unlabeled)
                 pred_ignore0 = torch.where(lab==0, lab, pred)
-                print("types = ", type(pred), type(pred_ignore0))
                 num_correct += (pred_ignore0 == lab).sum()
 
                 if num_correct > best_score: 
