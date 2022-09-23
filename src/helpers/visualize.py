@@ -6,6 +6,7 @@ import seaborn as sn
 import pandas as pd
 import os
 import glob 
+from PIL import Image
 
 
 
@@ -87,7 +88,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
 
 
 
-def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", results_path:str = "src/results", best_model_name:str = "unet_lr001_bs32_cel"):
+def plot_worst_segmentations(patch_test_path:str = "patches/test", results_path:str = "src/results", best_model_name:str = "unet_lr001_bs32_cel"):
     '''
     @param best_model_name: which model performed best to show the prediction
     @param img_groundtruth_pred_path: path to where image, groundtruth and all models with their predictions lie. 
@@ -99,21 +100,27 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
     # Plot best worst segmentations
     best_model_path = os.path.join(results_path, best_model_name)
     best_worst_img_path = os.path.join(best_model_path, "best_worst_images")
+    patch_test_images_path = os.path.join(patch_test_path, "images")
+    patch_test_masks_path = os.path.join(patch_test_path, "masks")
 
     n_plots = len(glob.glob1(best_worst_img_path,"pred_worst*")) 
     worst_imgs = glob.glob1(best_worst_img_path,"pred_worst*")
 
     spl_word_worst = 'pred_worst'
     
-    fig = plt.figure(constrained_layout=True, figsize=(10, 5))
+    fig = plt.figure(constrained_layout=True, figsize=(10, 9))
         
-    (worst_plt, mask_worst) = fig.subfigures(2, 1) # create 2x1 subfigures
+    (worst_plt, mask_worst, images_worst, infra_worst) = fig.subfigures(4, 1) # create 2x1 subfigures
      
     ax_worst_plt = worst_plt.subplots(1, n_plots)        
-    ax_mask_worst = mask_worst.subplots(1, n_plots)       
+    ax_mask_worst = mask_worst.subplots(1, n_plots)     
+    ax_images_worst = images_worst.subplots(1, n_plots)   
+    ax_infra_worst = infra_worst.subplots(1, n_plots)          
    
     worst_plt.suptitle('Worst segmentations', fontsize = 22)               
     mask_worst.suptitle('Corresponding groundtruth segmentations', fontsize = 22)
+    images_worst.suptitle('Corresponding RGB image (input)', fontsize = 22)
+    infra_worst.suptitle('Corresponding near infrared image (input)', fontsize = 22)
 
     for (ind, pred_worst_name) in zip(range(len(worst_imgs)), worst_imgs):
         
@@ -121,11 +128,38 @@ def plot_worst_segmentations(patch_test_masks_path:str = "patches/test/masks", r
 
         pred_worst = np.load(os.path.join(best_worst_img_path, pred_worst_name))
         mask_compare_worst = np.load(os.path.join(patch_test_masks_path, "mask"+pred_worst_extension))
+        image_nir_compare_worst = np.load(os.path.join(patch_test_images_path, "image"+pred_worst_extension))
+        image_compare_worst = image_nir_compare_worst[:,:,:3]
+        nir_compare_worst = image_nir_compare_worst[:,:,3]
 
-        ax_worst_plt[ind].imshow(pred_worst)
+        pred_worst_rgb = np.dstack([pred_worst, pred_worst, pred_worst])
+        pred_worst_rgb[pred_worst == 1] = [255,   0,   0]  # Artificial areas (RED)
+        pred_worst_rgb[pred_worst == 2] = [255, 255,   0]  # Agriculture areas (YELLOW)
+        pred_worst_rgb[pred_worst == 3] = [0  , 255,   0]  # Forest and semi-natural areas (GREEN)
+        pred_worst_rgb[pred_worst == 4] = [0  , 255, 255]  # Wetlands (CYAN)
+        pred_worst_rgb[pred_worst == 5] = [0  ,   0, 255]  # Water bodies (BLUE)
+
+        mask_compare_worst_rgb = np.dstack([mask_compare_worst, mask_compare_worst, mask_compare_worst])
+        mask_compare_worst_rgb[mask_compare_worst == 1] = [255,   0,   0]  # Artificial areas (RED)
+        mask_compare_worst_rgb[mask_compare_worst == 2] = [255, 255,   0]  # Agriculture areas (YELLOW)
+        mask_compare_worst_rgb[mask_compare_worst == 3] = [0  , 255,   0]  # Forest and semi-natural areas (GREEN)
+        mask_compare_worst_rgb[mask_compare_worst == 4] = [0  , 255, 255]  # Wetlands (CYAN)
+        mask_compare_worst_rgb[mask_compare_worst == 5] = [0  ,   0, 255]  # Water bodies (BLUE)
+
+        maxval = 2000
+        img_comp_worst_trunc = np.where(image_compare_worst < maxval, image_compare_worst, maxval)
+        img_comp_worst_norm = (img_comp_worst_trunc - img_comp_worst_trunc.min()) / (img_comp_worst_trunc.max() - img_comp_worst_trunc.min())
+        img_comp_worst_norm = (img_comp_worst_norm * 255).astype(np.uint8)
+        img_comp_worst_norm = np.dstack([img_comp_worst_norm[:,:,2], img_comp_worst_norm[:,:,1], img_comp_worst_norm[:,:,0]])
+        
+        ax_worst_plt[ind].imshow(pred_worst_rgb)
         ax_worst_plt[ind].set_axis_off()
-        ax_mask_worst[ind].imshow(mask_compare_worst)
+        ax_mask_worst[ind].imshow(mask_compare_worst_rgb)
         ax_mask_worst[ind].set_axis_off()
+        ax_images_worst[ind].imshow(img_comp_worst_norm)
+        ax_images_worst[ind].set_axis_off()
+        ax_infra_worst[ind].imshow(nir_compare_worst)
+        ax_infra_worst[ind].set_axis_off()
 
     print("saving to: ", best_worst_img_path + "/worst_comparison.png")
     plt.savefig(best_model_path + "/worst_comparison.png", bbox_inches=None)
