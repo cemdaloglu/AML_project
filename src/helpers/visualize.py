@@ -63,7 +63,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
     f, ax = plt.subplots(2, 3, figsize=(20, 15))
     #f.suptitle(city_title, fontsize=20)
     name_list = ["U-Net", "VGG16", "VGG16 pretrained", "VGG16 index"]
-    colors = ['red','yellow','green', 'blue']
+    colors = ['red','yellow','green', 'blue', 'black']
     best_prediction = np.load(os.path.join(img_groundtruth_pred_path, best_model_name, "pred_restored_"+str(city_ind)+".npy"))
     #best_prediction_rgb = np.dstack([best_prediction, best_prediction, best_prediction])
     #best_prediction_rgb[best_prediction == 1] = [255,   0,   0]  # Artificial areas (RED)
