@@ -142,7 +142,7 @@ def plot_worst_segmentations(patch_test_path:str = "patches/test", results_path:
         mask_compare_worst_rgb = np.dstack([mask_compare_worst, mask_compare_worst, mask_compare_worst])
         mask_compare_worst_rgb[mask_compare_worst == 1] = [255,   0,   0]  # Artificial areas (RED)
         mask_compare_worst_rgb[mask_compare_worst == 2] = [255, 255,   0]  # Agriculture areas (YELLOW)
-        mask_compare_worst_rgb[mask_compare_worst == 3] = [0  , 255,   0]  # Forest and semi-natural areas (GREEN)
+        mask_compare_worst_rgb[mask_compare_worst == 3] = [52,   119,  32]  # Forest and semi-natural areas (GREEN)
         mask_compare_worst_rgb[mask_compare_worst == 4] = [0  , 255, 255]  # Wetlands (CYAN)
         mask_compare_worst_rgb[mask_compare_worst == 5] = [0  ,   0, 255]  # Water bodies (BLUE)
 
