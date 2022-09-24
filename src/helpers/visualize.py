@@ -53,18 +53,31 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
         city_name = "Frankfurt"
     
     groundtruth = np.load(os.path.join(img_groundtruth_pred_path, 'groundtruth_'+ str(city_ind)+".npy"))
+    groundtruth_rgb = np.dstack([groundtruth, groundtruth, groundtruth])
+    groundtruth_rgb[groundtruth == 1] = [255,   0,   0]  # Artificial areas (RED)
+    groundtruth_rgb[groundtruth == 2] = [255, 255,   0]  # Agriculture areas (YELLOW)
+    groundtruth_rgb[groundtruth == 3] = [0  , 255,   0]  # Forest and semi-natural areas (GREEN)
+    groundtruth_rgb[groundtruth == 4] = [0  , 255, 255]  # Wetlands (CYAN)
+    groundtruth_rgb[groundtruth == 5] = [0  ,   0, 255]  # Water bodies (BLUE)
 
     f, ax = plt.subplots(2, 3, figsize=(20, 15))
     #f.suptitle(city_title, fontsize=20)
     name_list = ["U-Net", "VGG16", "VGG16 pretrained", "VGG16 index"]
 
     best_prediction = np.load(os.path.join(img_groundtruth_pred_path, best_model_name, "pred_restored_"+str(city_ind)+".npy"))
+    best_prediction_rgb = np.dstack([best_prediction, best_prediction, best_prediction])
+    best_prediction_rgb[best_prediction == 1] = [255,   0,   0]  # Artificial areas (RED)
+    best_prediction_rgb[best_prediction == 2] = [255, 255,   0]  # Agriculture areas (YELLOW)
+    best_prediction_rgb[best_prediction == 3] = [0  , 255,   0]  # Forest and semi-natural areas (GREEN)
+    best_prediction_rgb[best_prediction == 4] = [0  , 255, 255]  # Wetlands (CYAN)
+    best_prediction_rgb[best_prediction == 5] = [0  ,   0, 255]  # Water bodies (BLUE)
+
 
     ax[0,0].set_title("Groundtruth", fontsize=30)
-    ax[0,0].imshow(groundtruth)
+    ax[0,0].imshow(groundtruth_rgb)
     ax[0,0].set_axis_off()
     ax[0,1].set_title("Best Prediction", fontsize=30)
-    ax[0,1].imshow(best_prediction)
+    ax[0,1].imshow(best_prediction_rgb)
     ax[0,1].set_axis_off()
 
     colors = ['black','white']
