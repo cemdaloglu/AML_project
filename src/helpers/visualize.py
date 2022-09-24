@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import seaborn as sn
+#import seaborn as sn
 import pandas as pd
 import os
 import glob 
@@ -135,7 +135,7 @@ def plot_worst_segmentations(patch_test_path:str = "patches/test", results_path:
         pred_worst_rgb = np.dstack([pred_worst, pred_worst, pred_worst])
         pred_worst_rgb[pred_worst == 1] = [255,   0,   0]  # Artificial areas (RED)
         pred_worst_rgb[pred_worst == 2] = [255, 255,   0]  # Agriculture areas (YELLOW)
-        pred_worst_rgb[pred_worst == 3] = [0  , 255,   0]  # Forest and semi-natural areas (GREEN)
+        pred_worst_rgb[pred_worst == 3] = [52,   119,  32]  # Forest and semi-natural areas (GREEN)
         pred_worst_rgb[pred_worst == 4] = [0  , 255, 255]  # Wetlands (CYAN)
         pred_worst_rgb[pred_worst == 5] = [0  ,   0, 255]  # Water bodies (BLUE)
 
