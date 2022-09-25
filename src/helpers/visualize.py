@@ -56,7 +56,7 @@ def plot_groundtruth_bestpred_differences(city_title:str, best_model_name:str, m
     
     f, ax = plt.subplots(2, 3, figsize=(20, 15))
 
-    name_list = ["U-Net", "VGG16", "VGG16 pretrained", "VGG16 index"]
+    name_list = ["U-Net 2-layer", "U-Net 4-layer", "U-Net-VGG16 pretrained", "U-Net-VGG16 index"]
     colors = ['black','red','yellow','green', 'cyan', 'blue']
     best_prediction = np.load(os.path.join(img_groundtruth_pred_path, best_model_name, "pred_restored_"+str(city_ind)+".npy"))
 
