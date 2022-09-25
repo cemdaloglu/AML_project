@@ -21,8 +21,8 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', help='Model name', required=True)
     parser.add_argument('--train_test_path', help='Path to where training and test data lie', required=True, default="patches", type=str)
     parser.add_argument('-p', '--result_path', help='Path for storing testing results', required=False, default="src/results")
-    parser.add_argument('-m', '--model', help='Which model you are testing, either "unet", "vgg_unet", "vgg_unet_pretrained" or "deep_unet" ', type=str, required=False, default="unet")
-    parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Default is "CrossEntropy" ', default = "wCEL", required=False)
+    parser.add_argument('-m', '--model', help='Which model you are testing, either "unet", "vgg_unet", "vgg_unet_pretrained" or "2layer_unet" ', type=str, required=False, default="unet")
+    parser.add_argument('-loss', '--loss_criterion', help='Which Loss to use. Either "wCEL",  or "CEL" ', default = "wCEL", required=False)
     parser.add_argument('--batch_size', help='Batch Size', default=8, type=int)
     parser.add_argument('--out_classes', help='How many output classes there are, default 6 (0...5). For further information check report', default=6, type=int)
     parser.add_argument('--dataloader_workers', help='Num of workers for dataloader', default=3, type=int)
@@ -53,8 +53,6 @@ if __name__ == '__main__':
     model_choice = args.model
     if model_choice == "vgg_unet" or model_choice == "vgg_unet_pretrained":
         model = VGG16UNet(out_classes=args.out_classes)
-    elif model_choice == "deep_unet":
-        model = UNet(out_classes=args.out_classes)
     elif model_choice == "2layer_unet":
         model = Unet(out_classes=args.out_classes)
     else: 
