@@ -4,7 +4,7 @@ Final project for the lecture Advanced Machine Learning in the summer semester 2
 
 ## Research question  
 
-**Based on related work we want to investigate whether transfer learning improves semantic segmentaion for the LULC problem for German cities to identify 5 classes, namely Artificial Areas, Agrucultural Areas, Natural and seminatural areas, Wetlands and Water. Specifically, this is tested on the two cities Heidelberg and Frankfurt am Main.**
+**Based on related work we want to investigate whether transfer learning improves semantic segmentation for the LULC problem for German cities to identify 5 classes, namely Artificial Areas, Agricultural Areas, Natural and seminatural areas, Wetlands and Water. Specifically, this is tested on the two cities Heidelberg and Frankfurt am Main.**
 
 ## Main Contribution: 
 Transfer learning using a VGG16 as encoder that was pretrained on Sentinel-2 image data; and shallow network for index computation. 
@@ -16,7 +16,11 @@ Here, we provide a short overview how to use the main functions. All userfunctio
 For downloading the dataset and splitting into training, validation and testset, please take a look at our seperate notebook. 
 [prepare_city_data.ipynb](https://github.com/cemdaloglu/AML_project/blob/main/prepare_city_data.ipynb) 
 
-
+<img src="readme_images/export_flow.png"
+     alt="Export Flow"
+     style="float: left; margin-right: 10px;" />
+<br/><br/>
+<br/><br/>
 
 
 ### 2. Preprocess Data for Training: 
@@ -187,7 +191,7 @@ For details about our project, e.g. dataset, chosen model, ML approach and resul
 To get an insight into the performance of our model, here is the prediction of Heidelberg and the difference plots of some architectures investigated.
 
 ### Predicion and Difference 
-<img src="img_groundtruth_pred/groundtruth_bestpred_diff_Heidelberg.png"
+<img src="readme_images/groundtruth_bestpred_diff_Heidelberg.png"
      alt="Heidelberg"
      style="float: left; margin-right: 10px;" />
 <br/><br/>
@@ -197,7 +201,7 @@ To get an insight into the performance of our model, here is the prediction of H
 ### Patches with lowest accuracy
 To get familiar how our models predicted and how the patches look like, the following image is useful which shows the model predictions in the first row, the groundtruth mask in the second row, the RGB-input image in the third row and the 4th channel, the near infrared channel in the bottom row. 
 
-<img src="src/results/unet_lr001_bs128_cel_2layer/worst_comparison.png"
+<img src="readme_images/worst_comparison.png"
      alt="Worst Patches"
      style="margin-right: 10px; width:1000px; " />
 
@@ -206,6 +210,6 @@ To get familiar how our models predicted and how the patches look like, the foll
 
 ## Project team
 
-Cem Daloglu, Damjan Kalsan, Lia Schmid
+Cem Daloglu, Damjan Kalšan, Lia Schmid
 
 University of Heidelberg, 2022
