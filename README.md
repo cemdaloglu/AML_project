@@ -4,14 +4,22 @@ Final project for the lecture Advanced Machine Learning in the summer semester 2
 
 ## Research question  
 
-**Based on related work we want to investigate whether transfer learning improves semantic segmentaion for the LULC problem for German cities to identify 5 classes, namely Artificial Areas, Agrucultural Areas, Naturan and seminatural areas, Wetlands and Water.**
+**Based on related work we want to investigate whether transfer learning improves semantic segmentaion for the LULC problem for German cities to identify 5 classes, namely Artificial Areas, Agrucultural Areas, Natural and seminatural areas, Wetlands and Water. Specifically, this is tested on the two cities Heidelberg and Frankfurt am Main.**
 
-### Download and prepare the dataset
+## Main Contribution: 
+Transfer learning using a VGG16 as encoder that was pretrained on Sentinel-2 image data; and shallow network for index computation. 
+
+## Usage of the Repository: 
+Here, we provide a short overview how to use the main functions. All userfunctions are in the folder `/userfunctions`
+
+### 1. Download and prepare the dataset
 For downloading the dataset and splitting into training, validation and testset, please take a look at our seperate notebook. 
 [prepare_city_data.ipynb](https://github.com/cemdaloglu/AML_project/blob/main/prepare_city_data.ipynb) 
 
 
-### Preprocess Data for Training: 
+
+
+### 2. Preprocess Data for Training: 
 
 ```
 
@@ -45,7 +53,7 @@ myFolder = "/AML-project/final/L2A/"
 ```
 
 
-### Training the Model
+### 3. Training the Model
 
 The training routine is made accessible through the `train.py` CLI. To train
 the model, execute:
@@ -92,7 +100,7 @@ root_path = '/content/drive/MyDrive/AML'
     -vflip 0.2
 ```
 
-### Testing a model on the test dataset
+### 4. Testing a model on the test dataset
 
 For testing the model on the testset containing the patches of Heidelberg and Frankfurt am Main:
 
@@ -127,7 +135,7 @@ root_path = '/content/drive/MyDrive/AML'
 Creates a folder `result_path`/`name`/`best_worst_images`/ to store the best and worst predictions and stores the confusion matrix to  `result_path`/`name`/.
 For a full list of testing options, check `python userfunctions/test.py --help`.
 
-### Predict entire city: Merge patches together 
+### 5. Predict entire city: Merge patches together 
 
 ```
 !python userfunctions/predict_entire_city.py \
@@ -147,7 +155,7 @@ Example:
     --save_path "$root_path/AML_project/img_groundtruth_pred" 
 ```
 
-### Comparing the different models
+### 6. Comparing the different models
 
 Comparing plots between the different trained models in the folder `/results` are created in `/img_groundtruth_pred/`  by running:
 
@@ -174,11 +182,21 @@ root_path = '/content/drive/MyDrive/AML'
 
 ## Project details
 
-For details about our project, e.g. dataset, chosen model, ML approach and results) see the [report]. 
+For details about our project, e.g. dataset, chosen model, ML approach and results see the [report]. 
+
+To get an insight into the performance of our model, here is the prediction of Heidelberg and the difference plots of some architectures investigated.
+
+
+<img src="img_groundtruth_pred/groundtruth_bestpred_diff_Heidelberg.png"
+     alt="Markdown Monster icon"
+     style="float: left; margin-right: 10px;" />
+<br/><br/>
+<br/><br/>
+
 
 
 ## Project team
 
-- Cem Daloglu
-- Damjan Kalsan
-- Lia Schmid
+Cem Daloglu, Damjan Kalsan, Lia Schmid
+
+University of Heidelberg, 2022
