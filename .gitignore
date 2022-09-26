@@ -201,3 +201,9 @@ patches/**
 
 # ignore weighted models 
 *.pth
+
+
+# include groundtruth_bestpred_diff files 
+!img_groundtruth_pred/groundtruth_bestpred_diff_Frankfurt.png
+!img_groundtruth_pred/groundtruth_bestpred_diff_Heidelberg.png
+!src/results/unet_lr001_bs128_cel_2layer/worst_comparison.png
