@@ -186,7 +186,7 @@ For details about our project, e.g. dataset, chosen model, ML approach and resul
 
 To get an insight into the performance of our model, here is the prediction of Heidelberg and the difference plots of some architectures investigated.
 
-
+### Predicion and Difference 
 <img src="img_groundtruth_pred/groundtruth_bestpred_diff_Heidelberg.png"
      alt="Markdown Monster icon"
      style="float: left; margin-right: 10px;" />
@@ -194,6 +194,15 @@ To get an insight into the performance of our model, here is the prediction of H
 <br/><br/>
 
 
+### Patches with lowest accuracy
+To get familiar how our models predicted and how the patches look like, the following image is useful which shows the model predictions in the first row, the groundtruth mask in the second row, the RGB-input image in the third row and the 4th channel, the near infrared channel in the bottom row. 
+
+<img src="src/results/unet_lr001_bs32_cel/worst_comparison.png"
+     alt="Markdown Monster icon"
+     style="margin-right: 10px; width:1000px; " />
+
+<br/><br/>
+<br/><br/>
 
 ## Project team
 
