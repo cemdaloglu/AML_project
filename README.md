@@ -188,7 +188,7 @@ To get an insight into the performance of our model, here is the prediction of H
 
 ### Predicion and Difference 
 <img src="img_groundtruth_pred/groundtruth_bestpred_diff_Heidelberg.png"
-     alt="Markdown Monster icon"
+     alt="Heidelberg"
      style="float: left; margin-right: 10px;" />
 <br/><br/>
 <br/><br/>
@@ -197,8 +197,8 @@ To get an insight into the performance of our model, here is the prediction of H
 ### Patches with lowest accuracy
 To get familiar how our models predicted and how the patches look like, the following image is useful which shows the model predictions in the first row, the groundtruth mask in the second row, the RGB-input image in the third row and the 4th channel, the near infrared channel in the bottom row. 
 
-<img src="src/results/unet_lr001_bs32_cel/worst_comparison.png"
-     alt="Markdown Monster icon"
+<img src="src/results/unet_lr001_bs128_cel_2layer/worst_comparison.png"
+     alt="Worst Patches"
      style="margin-right: 10px; width:1000px; " />
 
 <br/><br/>
