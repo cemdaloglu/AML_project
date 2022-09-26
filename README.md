@@ -35,8 +35,8 @@ For downloading the dataset and splitting into training, validation and testset,
 Creates a folder `path_output`/patches/ with subfolders `train`, `val`and `test` which again have subfolders with `images`and `masks` and stores the image patches and the corresponding mask as .npy-filed with three identifiers: xxx_cityidentifier_rowidentifier_columnidentifier, e.g. image_0_3_12.npy .
 Consult `python userfunctions/preprocess_data.py --help` for a full list of command line options.
 
-columnidentifier
-Example
+
+Example:
 
 ```
 myFolder = "/AML-project/final/L2A/"
