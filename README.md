@@ -186,7 +186,7 @@ root_path = '/content/drive/MyDrive/AML'
 
 ## Project details
 
-For details about our project, e.g. dataset, chosen model, ML approach and results see the [report]. 
+For details about our project, e.g. dataset, chosen model, ML approach and results see the [report.pdf](https://github.com/cemdaloglu/AML_project/blob/9565c127ddd957c105dff4fce8542c92ec8b13b5/report.pdf). 
 
 To get an insight into the performance of our model, here is the prediction of Heidelberg and the difference plots of some architectures investigated.
 
